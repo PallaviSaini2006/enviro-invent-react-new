@@ -2,6 +2,7 @@ import Nav from './components/Nav.jsx'
 import Hero from './components/Hero.jsx'
 import Challenge from './components/Challenge.jsx'
 import Platform from './components/Platform.jsx'
+import SectionDivider from './components/SectionDivider.jsx'
 import ProductShowcase from './components/ProductShowcase.jsx'
 import Mapping from './components/Mapping.jsx'
 import Workflow from './components/Workflow.jsx'
@@ -20,6 +21,7 @@ export default function App() {
       <Hero />
       <Challenge />
       <Platform />
+      <SectionDivider fromLabel="Platform" toLabel="Product" />
       <ProductShowcase />
       <Mapping />
       <Workflow />
