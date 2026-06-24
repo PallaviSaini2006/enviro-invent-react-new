@@ -1,0 +1,120 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #FAFAF8;
+  color: #0A0A0A;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: #1A7A40;
+  color: #FAFAF8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Reveal animation base classes */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal.in {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-32px);
+  transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal-left.in {
+  opacity: 1;
+  transform: translateX(0);
+}
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.94);
+  transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal-scale.in {
+  opacity: 1;
+  transform: scale(1);
+}
+
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: 2px solid #1A7A40;
+  outline-offset: 3px;
+}
+
+/* ── Hero green radial glow ─────────────────────────────────────────── */
+.hero-glow {
+  position: absolute;
+  width: 640px;
+  height: 640px;
+  background: radial-gradient(circle, rgba(26,122,64,0.08) 0%, transparent 70%);
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+/* ── Green section wash background ─────────────────────────────────── */
+.section-green-wash {
+  background: linear-gradient(180deg, #F0F8F3 0%, #FAFAF8 100%);
+}
+
+/* ── Animated green underline for headings ──────────────────────────── */
+.green-underline {
+  position: relative;
+  display: inline-block;
+}
+.green-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(90deg, #1A7A40, #22A052);
+  border-radius: 2px;
+  transform-origin: left;
+}
+
+/* ── Green badge pill ────────────────────────────────────────────────── */
+.green-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: #E4F2EB;
+  border: 1px solid #A8D5B8;
+  border-radius: 999px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: #1A7A40;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.green-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #1A7A40;
+  animation: pulse-green 2.5s ease-in-out infinite;
+  flex-shrink: 0;
+}

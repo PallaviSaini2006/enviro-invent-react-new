@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MV Gas Carrier — General Arrangement</title>
+<style>
+  :root{
+    --bg:transparent; --bg2:transparent;
+    --ocean:rgba(200,220,230,0.08); --ocean2:rgba(180,205,220,0.06);
+    --hull:#c4d0d6; --hull-dk:#a8b8be; --hull-line:rgba(26,40,48,0.25);
+    --deck:#b8c8ce; --deck2:#9aaab0;
+    --trunk:#9eb0b8; --trunk-line:rgba(96,120,128,0.35);
+    --tank:rgba(164,215,195,0.55); --tank2:rgba(100,185,155,0.45); --tank-line:rgba(26,122,64,0.4);
+    --coffer:rgba(120,170,140,0.4); --ballast:rgba(26,122,64,0.12);
+    --pipe-main:#1A7A40; --pipe-gas:#22A052; --pipe-water:rgba(32,96,192,0.5);
+    --accom:#dde6ea; --win:rgba(10,10,10,0.7); --bridge:#c8d8de;
+    --funnel:#9aaab0; --mast-c:rgba(80,100,112,0.5);
+    --crane-c:rgba(64,90,100,0.45); --machinery:#a0b0b8;
+    --accent:#1A7A40; --accent2:#22A052;
+    --text:#0A0A0A; --text-dim:#6B6B68; --text-bright:#000000;
+    --haz-flam:#1A7A40; --haz-flam-bg:rgba(228,242,235,0.95);
+    --haz-tox:#22A052; --haz-tox-bg:rgba(228,242,235,0.95);
+    --haz-press:#1A7A40; --haz-press-bg:rgba(228,242,235,0.95);
+    --haz-hot:#22A052; --haz-hot-bg:rgba(228,242,235,0.95);
+    --haz-safe:#1A7A40; --haz-safe-bg:rgba(228,242,235,0.95);
+    --grid:rgba(216,214,208,0.2);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{width:100%;height:100%;background:transparent;overflow:hidden;
+    font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;}
+  /* Ambient hero background: fills whatever parent container it's dropped into,
+     never intercepts clicks, sits behind your real hero copy/CTA. */
+  #hero{position:relative;width:100%;height:100%;pointer-events:none;}
+  svg#ship-svg{position:absolute;top:0;left:0;width:100%;height:100%;display:block;}
+
+
+
+  /* ── SVG elements ── */
+  .sea-wave{stroke:var(--ocean2);stroke-width:.8;opacity:.5;}
+  .grid-line{stroke:var(--grid);stroke-width:.5;opacity:.8;}
+  .hull-fill{fill:var(--hull);}
+  .hull-btm{fill:var(--hull-dk);}
+  .hull-line{fill:none;stroke:var(--hull-line);stroke-width:1.3;}
+  .deck{fill:var(--deck);stroke:var(--hull-line);stroke-width:.8;}
+  .trunk{fill:var(--trunk);stroke:var(--trunk-line);stroke-width:.9;}
+  .dl{stroke:var(--hull-line);stroke-width:.6;opacity:.45;fill:none;}
+  .tank{fill:var(--tank);stroke:var(--tank-line);stroke-width:.9;}
+  .tank2{fill:var(--tank2);stroke:var(--tank-line);stroke-width:.7;opacity:.7;}
+  .coffer{fill:var(--coffer);stroke:var(--tank-line);stroke-width:.7;}
+  .ballast{fill:var(--ballast);opacity:.6;}
+  .dome{fill:none;stroke:var(--tank-line);stroke-width:.9;stroke-dasharray:3 2;opacity:.7;}
+  .pipe{stroke:var(--pipe-main);stroke-width:1.5;fill:none;stroke-linecap:round;}
+  .pipe-gas{stroke:var(--pipe-gas);stroke-width:1.2;fill:none;stroke-linecap:round;}
+  .pipe-water{stroke:var(--pipe-water);stroke-width:1.1;fill:none;stroke-linecap:round;}
+  .manifold{fill:var(--pipe-main);stroke:#b07000;stroke-width:.7;}
+  .valve{fill:none;stroke:var(--pipe-main);stroke-width:1.1;}
+  .accom{fill:var(--accom);stroke:var(--hull-line);stroke-width:1;}
+  .win{fill:var(--win);opacity:.85;}
+  .bridge{fill:var(--bridge);stroke:var(--hull-line);stroke-width:.9;}
+  .funnel{fill:var(--funnel);stroke:var(--hull-line);stroke-width:.9;}
+  .mast{stroke:var(--mast-c);stroke-width:1;fill:none;}
+  .crane{stroke:var(--crane-c);stroke-width:1.2;fill:none;}
+  .mach{fill:var(--machinery);stroke:var(--hull-line);stroke-width:.8;}
+  .prop-shaft{stroke:#6a7a80;stroke-width:3;}
+  .prop{fill:none;stroke:#6a7a80;stroke-width:1.8;}
+  .rudder{fill:#90a0a8;stroke:var(--hull-line);stroke-width:.9;}
+  .vent{fill:#b0bcc2;stroke:var(--hull-line);stroke-width:.7;}
+  .mooring{stroke:var(--mast-c);stroke-width:1.1;fill:none;}
+  .waterline{stroke:rgba(26,122,64,0.3);stroke-width:1;fill:none;stroke-dasharray:8 5;}
+  .frame-tick{stroke:var(--hull-line);stroke-width:.5;opacity:.35;}
+  .zone-ring{fill:none;stroke:var(--accent);stroke-width:1.8;opacity:0;rx:8;}
+  .ldr{stroke:var(--accent);stroke-width:.9;stroke-dasharray:2 3;fill:none;opacity:0;}
+  .ldot{fill:var(--accent);opacity:0;}
+  .ltxt{fill:var(--text);font-size:14px;font-weight:600;opacity:0;}
+  .lsub{fill:var(--text-dim);font-size:10.5px;opacity:0;}
+  .lbg{fill:rgba(245,248,245,0.94);stroke:rgba(26,122,64,0.25);stroke-width:1;opacity:0;}
+  .hpill{opacity:0;}
+  .hpill text{font-size:11px;font-weight:700;letter-spacing:.3px;}
+  .smoke-puff{fill:rgba(120,130,135,0.1);opacity:0;}
+  .wave-crest{fill:none;stroke:rgba(100,180,220,.3);stroke-width:1.2;opacity:0;}
+</style>
+</head>
+<body>
+<div id="hero">
+<svg id="ship-svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet">
+<defs>
+  <linearGradient id="seaGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#06192a"/>
+    <stop offset="100%" stop-color="#040f1a"/>
+  </linearGradient>
+  <linearGradient id="hullGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#d2dce2"/>
+    <stop offset="60%" stop-color="#b8c8d0"/>
+    <stop offset="100%" stop-color="#8090a0"/>
+  </linearGradient>
+  <linearGradient id="tankGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#c0dcea"/>
+    <stop offset="100%" stop-color="#7aacbf"/>
+  </linearGradient>
+  <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#04111c"/>
+    <stop offset="100%" stop-color="#071e2e"/>
+  </linearGradient>
+  <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+    <feGaussianBlur stdDeviation="2.5" result="blur"/>
+    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="softglow">
+    <feGaussianBlur stdDeviation="4" result="blur"/>
+    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+    <path d="M0,1 L5,3 L0,5 Z" fill="var(--accent)"/>
+  </marker>
+</defs>
+
+<!-- SKY / SEA BG -->
+<rect x="0" y="0" width="1600" height="900" fill="transparent"/>
+<rect id="sea-rect" x="0" y="530" width="1600" height="370" fill="rgba(200,220,230,0.05)"/>
+<g id="sea-waves"></g>
+<g id="grid-lines"></g>
+
+<!-- ===== WORLD GROUP (camera transforms here) ===== -->
+<g id="world">
+
+  <!-- ───────────────────────────────────────────
+       STATIC HULL SHELL
+  ─────────────────────────────────────────────── -->
+  <g id="hull-static">
+    <!-- main hull body -->
+    <path fill="url(#hullGrad)" d="
+      M158,480
+      C158,445 195,415 268,408
+      L1185,400
+      C1270,398 1335,410 1382,445
+      L1425,475
+      C1436,483 1436,490 1425,497
+      L1382,530
+      C1335,562 1270,575 1185,573
+      L268,573
+      C195,567 158,542 158,510 Z"/>
+    <!-- hull outline -->
+    <path class="hull-line" d="
+      M158,480
+      C158,445 195,415 268,408
+      L1185,400
+      C1270,398 1335,410 1382,445
+      L1425,475
+      C1436,483 1436,490 1425,497
+      L1382,530
+      C1335,562 1270,575 1185,573
+      L268,573
+      C195,567 158,542 158,510 Z"/>
+    <!-- boot-topping (waterline band) -->
+    <path fill="#6a7a82" opacity=".35" d="
+      M165,495 C165,490 190,487 265,485 L1185,478 C1268,477 1330,487 1375,512
+      L1415,490 C1380,510 1330,522 1185,525 L265,527 C185,522 165,515 165,510 Z"/>
+    <!-- main deck (top of hull sides) -->
+    <line class="dl" x1="172" y1="432" x2="1390" y2="420" stroke-width=".9"/>
+    <!-- waterline -->
+    <path class="waterline" d="M165,495 C250,491 900,487 1375,490"/>
+    <!-- frame ticks -->
+    <g id="frame-ticks"></g>
+    <!-- rubbing strake -->
+    <path fill="none" stroke="#8090a0" stroke-width="1.5" opacity=".4" d="M200,465 L1400,455"/>
+  </g>
+
+  <!-- ───────────────────────────────────────────
+       TRUNK DECK (raised cargo deck)
+  ─────────────────────────────────────────────── -->
+  <g id="trunk-deck">
+    <!-- trunk side walls -->
+    <rect class="trunk" x="310" y="370" width="820" height="42" rx="2"/>
+    <!-- trunk top -->
+    <rect fill="#a8b8be" stroke="#607880" stroke-width=".8" x="310" y="365" width="820" height="7" rx="1"/>
+    <!-- trunk deck line -->
+    <line class="dl" x1="310" y1="365" x2="1130" y2="365" stroke="#607880" stroke-width=".8" opacity=".7"/>
+    <!-- cofferdam walls on trunk -->
+    <line stroke="#607880" stroke-width="1.2" x1="510" y1="365" x2="510" y2="412" opacity=".6"/>
+    <line stroke="#607880" stroke-width="1.2" x1="530" y1="365" x2="530" y2="412" opacity=".6"/>
+    <line stroke="#607880" stroke-width="1.2" x1="700" y1="365" x2="700" y2="412" opacity=".6"/>
+    <line stroke="#607880" stroke-width="1.2" x1="720" y1="365" x2="720" y2="412" opacity=".6"/>
+    <line stroke="#607880" stroke-width="1.2" x1="910" y1="365" x2="910" y2="412" opacity=".6"/>
+    <line stroke="#607880" stroke-width="1.2" x1="930" y1="365" x2="930" y2="412" opacity=".6"/>
+  </g>
+
+  <!-- ───────────────────────────────────────────
+       ZONE: CARGO TANK 4  (fwd-most)
+  ─────────────────────────────────────────────── -->
+  <g id="zone-t4" class="zone-hit" data-ex="0" data-ey="-95">
+    <!-- tank body -->
+    <path class="tank" d="M335,412 C335,390 350,374 390,370 C430,366 500,368 510,370
+      C510,370 510,412 510,430 L335,430 Z" fill="url(#tankGrad)"/>
+    <!-- dome top -->
+    <path class="dome" d="M350,380 C365,368 395,363 422,362 C449,363 490,368 505,378"/>
+    <!-- internal frame lines -->
+    <line class="dl" x1="380" y1="370" x2="380" y2="430" stroke="#4a8090" stroke-width=".5"/>
+    <line class="dl" x1="430" y1="368" x2="430" y2="430" stroke="#4a8090" stroke-width=".5"/>
+    <line class="dl" x1="470" y1="370" x2="470" y2="430" stroke="#4a8090" stroke-width=".5"/>
+    <!-- ballast bottom -->
+    <path class="ballast" d="M335,418 L510,418 L510,430 L335,430 Z"/>
+    <!-- zone outline -->
+    <rect class="zone-ring" id="ring-t4" x="328" y="328" width="190" height="108" rx="8"/>
+  </g>
+
+  <!-- ───────────────────────────────────────────
+       ZONE: CARGO TANK 3
+  ─────────────────────────────────────────────── -->
+  <g id="zone-t3" class="zone-hit" data-ex="0" data-ey="-95">
+    <path class="tank" d="M535,412 C535,388 552,372 598,368 C644,364 698,366 710,370
+      C710,370 710,412 710,432 L535,432 Z" fill="url(#tankGrad)"/>
+    <path class="dome" d="M548,380 C562,366 595,361 622,360 C649,361 695,367 705,379"/>
+    <line class="dl" x1="580" y1="369" x2="580" y2="432" stroke="#4a8090" stroke-width=".5"/>
+    <line class="dl" x1="622" y1="367" x2="622" y2="432" stroke="#4a8090" stroke-width=".5"/>
+    <line class="dl" x1="668" y1="369" x2="668" y2="432" stroke="#4a8090" stroke-width=".5"/>
+    <path class="ballast" d="M535,420 L710,420 L710,432 L535,432 Z"/>
+    <rect class="zone-ring" id="ring-t3" x="528" y="328" width="190" height="111" rx="8"/>
+  </g>
+
+  <!-- ───────────────────────────────────────────
+       ZONE: CARGO TANK 2  (centre manifold here)
+  ─────────────────────────────────────────────── -->
+  <g id="zone-t2" class="zone-hit" data-ex="0" data-ey="-95">
+    <path class="tank" d="M725,412 C725,386 744,369 798,365 C852,361 908,365 918,370
+      C918,370 918,412 918,432 L725,432 Z" fill="url(#tankGrad)"/>
+    <path class="dome" d="M738,380 C755,364 793,358 820,357 C847,358 895,365 908,378"/>
+    <line class="dl" x1="775" y1="367" x2="775" y2="432" stroke="#4a8090" stroke-width=".5"/>
+    <line class="dl" x1="820" y1="365" x2="820" y2="432" stroke="#4a8090" stroke-width=".5"/>
+    <line class="dl" x1="870" y1="367" x2="870" y2="432" stroke="#4a8090" stroke-width=".5"/>
+    <path class="ballast" d="M725,420 L918,420 L918,432 L725,432 Z"/>
+    <rect class="zone-ring" id="ring-t2" x="718" y="285" width="207" height="153" rx="8"/>
+  </g>
+
+  <!-- ───────────────────────────────────────────
+       ZONE: CARGO TANK 1  (aft-most cargo tank)
+  ─────────────────────────────────────────────── -->
+  <g id="zone-t1" class="zone-hit" data-ex="0" data-ey="-95">
+    <path class="tank" d="M935,412 C935,388 950,373 990,369 C1030,365 1076,367 1086,371
+      C1086,371 1086,412 1086,430 L935,430 Z" fill="url(#tankGrad)"/>
+    <path class="dome" d="M948,381 C962,368 990,363 1010,362 C1030,363 1072,368 1082,379"/>
+    <line class="dl" x1="975" y1="371" x2="975" y2="430" stroke="#4a8090" stroke-width=".5"/>
+    <line class="dl" x1="1010" y1="369" x2="1010" y2="430" stroke="#4a8090" stroke-width=".5"/>
+    <line class="dl" x1="1050" y1="371" x2="1050" y2="430" stroke="#4a8090" stroke-width=".5"/>
+    <path class="ballast" d="M935,418 L1086,418 L1086,430 L935,430 Z"/>
+    <rect class="zone-ring" id="ring-t1" x="928" y="328" width="165" height="108" rx="8"/>
+  </g>
+
+  <!-- ───────────────────────────────────────────
+       CARGO MACHINERY ROOM (reliquefaction)
+  ─────────────────────────────────────────────── -->
+  <g id="zone-mach" class="zone-hit" data-ex="22" data-ey="-100">
+    <!-- room box -->
+    <rect class="mach" x="1098" y="375" width="100" height="57" rx="3"/>
+    <!-- compressors (3 circles) -->
+    <circle cx="1118" cy="395" r="9" fill="#8a9aa2" stroke="var(--hull-line)" stroke-width=".8"/>
+    <circle cx="1118" cy="395" r="5" fill="#707e84"/>
+    <circle cx="1148" cy="393" r="10.5" fill="#8a9aa2" stroke="var(--hull-line)" stroke-width=".8"/>
+    <circle cx="1148" cy="393" r="6" fill="#707e84"/>
+    <circle cx="1178" cy="396" r="8" fill="#8a9aa2" stroke="var(--hull-line)" stroke-width=".8"/>
+    <circle cx="1178" cy="396" r="4.5" fill="#707e84"/>
+    <!-- piping header -->
+    <rect class="mach" x="1098" y="418" width="100" height="14" rx="2" opacity=".8"/>
+    <path class="pipe-gas" d="M1108,375 L1108,355 L1130,355 L1130,375"/>
+    <path class="pipe-gas" d="M1148,375 L1148,348 L1148,348"/>
+    <path class="pipe-gas" d="M1168,375 L1168,358 L1185,358 L1185,375"/>
+    <!-- BOG header line -->
+    <line class="pipe-gas" x1="1108" y1="348" x2="1185" y2="348"/>
+    <!-- crane gantry -->
+    <path class="crane" d="M1080,368 L1080,320 L1205,320 L1205,368"/>
+    <path class="crane" d="M1110,320 L1110,308"/>
+    <path class="crane" d="M1160,320 L1160,308"/>
+    <line class="crane" x1="1080" y1="344" x2="1205" y2="344" stroke-dasharray="3 2" opacity=".5"/>
+    <!-- crane hook -->
+    <line class="crane" x1="1142" y1="320" x2="1142" y2="340"/>
+    <path class="crane" d="M1136,340 C1136,346 1148,346 1148,340"/>
+    <rect class="zone-ring" id="ring-mach" x="1072" y="304" width="140" height="130" rx="8"/>
+  </g>
+
+  <!-- ───────────────────────────────────────────
+       ENGINE ROOM + STEERING GEAR
+  ─────────────────────────────────────────────── -->
+  <g id="zone-eng" class="zone-hit" data-ex="45" data-ey="95">
+    <!-- engine room casing -->
+    <rect class="mach" x="1208" y="410" width="138" height="88" rx="3"/>
+    <!-- main engine (detailed block) -->
+    <rect fill="#9aabb2" stroke="var(--hull-line)" stroke-width=".9" x="1218" y="428" width="108" height="52" rx="3"/>
+    <!-- engine cylinders -->
+    <rect fill="#8090a0" x="1225" y="432" width="12" height="44" rx="2"/>
+    <rect fill="#8090a0" x="1243" y="432" width="12" height="44" rx="2"/>
+    <rect fill="#8090a0" x="1261" y="432" width="12" height="44" rx="2"/>
+    <rect fill="#8090a0" x="1279" y="432" width="12" height="44" rx="2"/>
+    <rect fill="#8090a0" x="1297" y="432" width="12" height="44" rx="2"/>
+    <rect fill="#8090a0" x="1315" y="432" width="12" height="44" rx="2"/>
+    <!-- crankcase base -->
+    <rect fill="#707e86" x="1218" y="472" width="108" height="8" rx="1"/>
+    <!-- aux machinery -->
+    <rect class="mach" x="1218" y="410" width="40" height="18" rx="2"/>
+    <rect class="mach" x="1268" y="410" width="30" height="18" rx="2"/>
+    <!-- propeller shaft -->
+    <line class="prop-shaft" x1="1326" y1="462" x2="1432" y2="475"/>
+    <!-- stern tube -->
+    <rect fill="#607080" x="1344" y="456" width="90" height="8" rx="3"/>
+    <!-- steering gear room -->
+    <rect class="mach" x="1346" y="418" width="68" height="78" rx="3"/>
+    <rect fill="#8a9aa2" stroke="var(--hull-line)" stroke-width=".7" x="1354" y="428" width="52" height="42" rx="2"/>
+    <!-- rudder stock -->
+    <line stroke="#607080" stroke-width="2.5" x1="1380" y1="470" x2="1380" y2="510"/>
+    <!-- propeller -->
+    <g transform="translate(1432,476)">
+      <ellipse rx="18" ry="28" fill="none" stroke="#6a7a84" stroke-width="2"/>
+      <ellipse rx="6" ry="6" fill="#6a7a84"/>
+      <line x1="-18" y1="0" x2="18" y2="0" stroke="#6a7a84" stroke-width="1.6"/>
+      <line x1="0" y1="-28" x2="0" y2="28" stroke="#6a7a84" stroke-width="1.1" opacity=".5"/>
+    </g>
+    <!-- rudder -->
+    <path class="rudder" d="M1405,455 L1420,448 L1420,516 L1405,508 Z"/>
+    <rect class="zone-ring" id="ring-eng" x="1200" y="404" width="250" height="120" rx="8"/>
+  </g>
+
+  <!-- ───────────────────────────────────────────
+       ACCOMMODATION BLOCK
+  ─────────────────────────────────────────────── -->
+  <g id="zone-accom" class="zone-hit" data-ex="12" data-ey="-140">
+    <!-- deck stack — E deck (lowest visible) -->
+    <rect class="accom" x="1205" y="358" width="125" height="50" rx="2"/>
+    <!-- D deck -->
+    <rect class="accom" x="1212" y="310" width="112" height="50" rx="2"/>
+    <!-- C deck -->
+    <rect class="accom" x="1220" y="268" width="98" height="44" rx="2"/>
+    <!-- B deck / bridge wings -->
+    <rect class="bridge" x="1204" y="240" width="114" height="30" rx="2"/>
+    <!-- bridge wing extensions -->
+    <rect class="bridge" x="1196" y="244" width="18" height="22" rx="2" opacity=".8"/>
+    <rect class="bridge" x="1308" y="244" width="18" height="22" rx="2" opacity=".8"/>
+    <!-- A deck / compass deck -->
+    <rect class="accom" x="1228" y="222" width="66" height="20" rx="2"/>
+    <!-- windows - E deck row 1 -->
+    <rect class="win" x="1214" y="366" width="8" height="10" rx="1"/>
+    <rect class="win" x="1228" y="366" width="8" height="10" rx="1"/>
+    <rect class="win" x="1242" y="366" width="8" height="10" rx="1"/>
+    <rect class="win" x="1256" y="366" width="8" height="10" rx="1"/>
+    <rect class="win" x="1270" y="366" width="8" height="10" rx="1"/>
+    <rect class="win" x="1284" y="366" width="8" height="10" rx="1"/>
+    <rect class="win" x="1298" y="366" width="8" height="10" rx="1"/>
+    <rect class="win" x="1312" y="366" width="8" height="10" rx="1"/>
+    <!-- E deck row 2 -->
+    <rect class="win" x="1214" y="382" width="8" height="10" rx="1"/>
+    <rect class="win" x="1228" y="382" width="8" height="10" rx="1"/>
+    <rect class="win" x="1242" y="382" width="8" height="10" rx="1"/>
+    <rect class="win" x="1256" y="382" width="8" height="10" rx="1"/>
+    <rect class="win" x="1270" y="382" width="8" height="10" rx="1"/>
+    <rect class="win" x="1284" y="382" width="8" height="10" rx="1"/>
+    <rect class="win" x="1298" y="382" width="8" height="10" rx="1"/>
+    <!-- D deck windows -->
+    <rect class="win" x="1220" y="318" width="8" height="10" rx="1"/>
+    <rect class="win" x="1234" y="318" width="8" height="10" rx="1"/>
+    <rect class="win" x="1248" y="318" width="8" height="10" rx="1"/>
+    <rect class="win" x="1262" y="318" width="8" height="10" rx="1"/>
+    <rect class="win" x="1276" y="318" width="8" height="10" rx="1"/>
+    <rect class="win" x="1290" y="318" width="8" height="10" rx="1"/>
+    <rect class="win" x="1304" y="318" width="8" height="10" rx="1"/>
+    <rect class="win" x="1220" y="334" width="8" height="10" rx="1"/>
+    <rect class="win" x="1234" y="334" width="8" height="10" rx="1"/>
+    <rect class="win" x="1248" y="334" width="8" height="10" rx="1"/>
+    <rect class="win" x="1262" y="334" width="8" height="10" rx="1"/>
+    <rect class="win" x="1276" y="334" width="8" height="10" rx="1"/>
+    <rect class="win" x="1290" y="334" width="8" height="10" rx="1"/>
+    <!-- C deck windows -->
+    <rect class="win" x="1228" y="276" width="8" height="9" rx="1"/>
+    <rect class="win" x="1242" y="276" width="8" height="9" rx="1"/>
+    <rect class="win" x="1256" y="276" width="8" height="9" rx="1"/>
+    <rect class="win" x="1270" y="276" width="8" height="9" rx="1"/>
+    <rect class="win" x="1284" y="276" width="8" height="9" rx="1"/>
+    <rect class="win" x="1228" y="292" width="8" height="9" rx="1"/>
+    <rect class="win" x="1242" y="292" width="8" height="9" rx="1"/>
+    <rect class="win" x="1256" y="292" width="8" height="9" rx="1"/>
+    <rect class="win" x="1270" y="292" width="8" height="9" rx="1"/>
+    <rect class="win" x="1284" y="292" width="8" height="9" rx="1"/>
+    <!-- bridge windows (panoramic strip) -->
+    <rect class="win" x="1210" y="246" width="102" height="18" rx="2" opacity=".7"/>
+    <line stroke="rgba(6,24,40,.9)" stroke-width="1" x1="1226" y1="246" x2="1226" y2="264"/>
+    <line stroke="rgba(6,24,40,.9)" stroke-width="1" x1="1242" y1="246" x2="1242" y2="264"/>
+    <line stroke="rgba(6,24,40,.9)" stroke-width="1" x1="1258" y1="246" x2="1258" y2="264"/>
+    <line stroke="rgba(6,24,40,.9)" stroke-width="1" x1="1274" y1="246" x2="1274" y2="264"/>
+    <line stroke="rgba(6,24,40,.9)" stroke-width="1" x1="1290" y1="246" x2="1290" y2="264"/>
+    <line stroke="rgba(6,24,40,.9)" stroke-width="1" x1="1306" y1="246" x2="1306" y2="264"/>
+    <!-- compass deck rail -->
+    <rect class="bridge" x="1232" y="214" width="58" height="9" rx="2"/>
+    <!-- funnel -->
+    <rect class="funnel" x="1308" y="260" width="22" height="100" rx="3"/>
+    <rect fill="#6a7a80" stroke="var(--hull-line)" stroke-width=".7" x="1304" y="252" width="30" height="10" rx="2"/>
+    <!-- funnel top smoke cap -->
+    <ellipse cx="1319" cy="252" rx="16" ry="4" fill="#505a60" stroke="#3a4448" stroke-width=".7"/>
+    <!-- smoke puffs (animated via CSS) -->
+    <ellipse class="smoke-puff" id="smoke1" cx="1319" cy="240" rx="10" ry="7"/>
+    <ellipse class="smoke-puff" id="smoke2" cx="1315" cy="228" rx="8" ry="6"/>
+    <ellipse class="smoke-puff" id="smoke3" cx="1322" cy="216" rx="6" ry="5"/>
+    <!-- nav mast -->
+    <line class="mast" x1="1261" y1="214" x2="1261" y2="148"/>
+    <line class="mast" x1="1240" y1="170" x2="1282" y2="170"/>
+    <!-- radar scanner -->
+    <ellipse cx="1261" cy="159" rx="17" ry="5" fill="none" stroke="var(--mast-c)" stroke-width="1.2"/>
+    <line class="mast" x1="1244" y1="159" x2="1278" y2="159"/>
+    <!-- signal halyards -->
+    <line stroke="var(--mast-c)" stroke-width=".5" x1="1261" y1="148" x2="1232" y2="214" opacity=".4"/>
+    <line stroke="var(--mast-c)" stroke-width=".5" x1="1261" y1="148" x2="1290" y2="214" opacity=".4"/>
+    <rect class="zone-ring" id="ring-accom" x="1194" y="142" width="146" height="268" rx="8"/>
+  </g>
+
+  <!-- ───────────────────────────────────────────
+       BOW FITTINGS
+  ─────────────────────────────────────────────── -->
+  <g id="bow-fittings">
+    <!-- anchor hawse pipes -->
+    <circle cx="195" cy="445" r="5" fill="#607080" stroke="var(--hull-line)" stroke-width=".7"/>
+    <circle cx="195" cy="460" r="5" fill="#607080" stroke="var(--hull-line)" stroke-width=".7"/>
+    <!-- windlass -->
+    <rect class="vent" x="220" y="415" width="22" height="16" rx="3"/>
+    <rect class="vent" x="250" y="416" width="14" height="14" rx="2"/>
+    <!-- bow fairlead -->
+    <circle cx="165" cy="478" r="4" fill="none" stroke="#607080" stroke-width="1.2"/>
+    <!-- forecastle deck edge -->
+    <path fill="#b8c4ca" stroke="var(--hull-line)" stroke-width=".8" d="M172,430 L310,422 L310,408 L172,416 Z"/>
+    <!-- bow mast -->
+    <line class="mast" x1="225" y1="414" x2="225" y2="368"/>
+    <line class="mast" x1="208" y1="382" x2="242" y2="382"/>
+    <!-- mooring ropes (schematic) -->
+    <path class="mooring" d="M172,432 C155,432 152,440 155,455"/>
+    <path class="mooring" d="M172,440 C155,442 152,450 152,462"/>
+  </g>
+
+  <!-- ───────────────────────────────────────────
+       AFT FITTINGS (deck mooring)
+  ─────────────────────────────────────────────── -->
+  <g id="aft-fittings">
+    <rect class="vent" x="1142" y="398" width="18" height="12" rx="2"/>
+    <rect class="vent" x="1162" y="400" width="14" height="10" rx="2"/>
+    <!-- aft mast -->
+    <line class="mast" x1="1180" y1="398" x2="1180" y2="355"/>
+    <line class="mast" x1="1165" y1="368" x2="1195" y2="368"/>
+  </g>
+
+  <!-- ───────────────────────────────────────────
+       LABEL / OVERLAY GROUPS
+  ─────────────────────────────────────────────── -->
+  <g id="overlays">
+
+    <!-- overlay 0: Tank 4 -->
+    <g id="ov-0">
+      <line class="ldr" x1="422" y1="363" x2="422" y2="270"/>
+      <rect class="lbg" id="lbg-0" rx="6"/>
+      <circle class="ldot" cx="422" cy="363" r="3"/>
+      <text class="ltxt" x="422" y="255" text-anchor="middle">No.4 Cargo Tank</text>
+      <text class="lsub" x="422" y="270" text-anchor="middle">Fwd-most · Type-C pressure vessel</text>
+      <g class="hpill" id="hp-0" transform="translate(422,292)">
+        <rect x="-76" y="-14" width="152" height="25" rx="12" fill="var(--haz-flam-bg)" stroke="var(--haz-flam)" stroke-width="1"/>
+        <circle cx="-58" cy="-2" r="4" fill="var(--haz-flam)"/>
+        <text x="-46" y="2" fill="var(--haz-flam)">Flammable · LPG cargo</text>
+      </g>
+    </g>
+
+    <!-- overlay 1: Tank 3 -->
+    <g id="ov-1">
+      <line class="ldr" x1="622" y1="360" x2="622" y2="270"/>
+      <rect class="lbg" id="lbg-1" rx="6"/>
+      <circle class="ldot" cx="622" cy="360" r="3"/>
+      <text class="ltxt" x="622" y="255" text-anchor="middle">No.3 Cargo Tank</text>
+      <text class="lsub" x="622" y="270" text-anchor="middle">Type-C · cofferdam separated</text>
+      <g class="hpill" id="hp-1" transform="translate(622,292)">
+        <rect x="-76" y="-14" width="152" height="25" rx="12" fill="var(--haz-flam-bg)" stroke="var(--haz-flam)" stroke-width="1"/>
+        <circle cx="-58" cy="-2" r="4" fill="var(--haz-flam)"/>
+        <text x="-46" y="2" fill="var(--haz-flam)">Flammable · LPG cargo</text>
+      </g>
+    </g>
+
+    <!-- overlay 2: Tank 2 + manifold -->
+    <g id="ov-2">
+      <line class="ldr" x1="820" y1="357" x2="770" y2="252"/>
+      <rect class="lbg" id="lbg-2" rx="6"/>
+      <circle class="ldot" cx="820" cy="357" r="3"/>
+      <text class="ltxt" x="770" y="238" text-anchor="middle">No.2 Cargo Tank</text>
+      <text class="lsub" x="770" y="253" text-anchor="middle">Centre of manifold · loading/discharge</text>
+      <g class="hpill" id="hp-2" transform="translate(770,272)">
+        <rect x="-80" y="-14" width="160" height="25" rx="12" fill="var(--haz-press-bg)" stroke="var(--haz-press)" stroke-width="1"/>
+        <circle cx="-62" cy="-2" r="4" fill="var(--haz-press)"/>
+        <text x="-50" y="2" fill="var(--haz-press)">High pressure · boil-off gas</text>
+      </g>
+    </g>
+
+    <!-- overlay 3: Tank 1 -->
+    <g id="ov-3">
+      <line class="ldr" x1="1010" y1="362" x2="1010" y2="270"/>
+      <rect class="lbg" id="lbg-3" rx="6"/>
+      <circle class="ldot" cx="1010" cy="362" r="3"/>
+      <text class="ltxt" x="1010" y="255" text-anchor="middle">No.1 Cargo Tank</text>
+      <text class="lsub" x="1010" y="270" text-anchor="middle">Aft-most cargo tank · P&amp;S ballast below</text>
+      <g class="hpill" id="hp-3" transform="translate(1010,292)">
+        <rect x="-76" y="-14" width="152" height="25" rx="12" fill="var(--haz-flam-bg)" stroke="var(--haz-flam)" stroke-width="1"/>
+        <circle cx="-58" cy="-2" r="4" fill="var(--haz-flam)"/>
+        <text x="-46" y="2" fill="var(--haz-flam)">Flammable · LPG cargo</text>
+      </g>
+    </g>
+
+    <!-- overlay 4: Cargo machinery -->
+    <g id="ov-4">
+      <line class="ldr" x1="1148" y1="375" x2="1148" y2="268"/>
+      <rect class="lbg" id="lbg-4" rx="6"/>
+      <circle class="ldot" cx="1148" cy="375" r="3"/>
+      <text class="ltxt" x="1148" y="253" text-anchor="middle">Cargo Machinery Room</text>
+      <text class="lsub" x="1148" y="268" text-anchor="middle">Reliquefaction · BOG compressors</text>
+      <g class="hpill" id="hp-4" transform="translate(1148,290)">
+        <rect x="-82" y="-14" width="164" height="25" rx="12" fill="var(--haz-tox-bg)" stroke="var(--haz-tox)" stroke-width="1"/>
+        <circle cx="-64" cy="-2" r="4" fill="var(--haz-tox)"/>
+        <text x="-52" y="2" fill="var(--haz-tox)">Toxic · boil-off gas risk</text>
+      </g>
+    </g>
+
+    <!-- overlay 5: Engine room -->
+    <g id="ov-5">
+      <line class="ldr" x1="1278" y1="450" x2="1278" y2="550"/>
+      <rect class="lbg" id="lbg-5" rx="6"/>
+      <circle class="ldot" cx="1278" cy="450" r="3"/>
+      <text class="ltxt" x="1278" y="565" text-anchor="middle">Main Engine Room</text>
+      <text class="lsub" x="1278" y="580" text-anchor="middle">6-cyl 2-stroke · single shaft</text>
+      <g class="hpill" id="hp-5" transform="translate(1278,608)">
+        <rect x="-72" y="-14" width="144" height="25" rx="12" fill="var(--haz-hot-bg)" stroke="var(--haz-hot)" stroke-width="1"/>
+        <circle cx="-54" cy="-2" r="4" fill="var(--haz-hot)"/>
+        <text x="-42" y="2" fill="var(--haz-hot)">Hot surfaces · noise</text>
+      </g>
+    </g>
+
+    <!-- overlay 6: Accommodation -->
+    <g id="ov-6">
+      <line class="ldr" x1="1270" y1="200" x2="1390" y2="165"/>
+      <rect class="lbg" id="lbg-6" rx="6"/>
+      <circle class="ldot" cx="1270" cy="200" r="3"/>
+      <text class="ltxt" x="1400" y="160" text-anchor="start">Accommodation Block</text>
+      <text class="lsub" x="1400" y="175" text-anchor="start">Bridge · officer &amp; crew cabins · E–Nav deck</text>
+      <g class="hpill" id="hp-6" transform="translate(1400,200)">
+        <rect x="-64" y="-14" width="128" height="25" rx="12" fill="var(--haz-safe-bg)" stroke="var(--haz-safe)" stroke-width="1"/>
+        <circle cx="-46" cy="-2" r="4" fill="var(--haz-safe)"/>
+        <text x="-34" y="2" fill="var(--haz-safe)">Safe zone</text>
+      </g>
+    </g>
+
+  </g><!-- /overlays -->
+
+</g><!-- /world -->
+</svg>
+
+
+
+<script>
+(function(){
+  /* =====================================================
+     TWEEN ENGINE (no external deps)
+  ===================================================== */
+  function ease2(t){ return t<.5?2*t*t:-1+(4-2*t)*t; }
+  function easeOut(t){ return 1-(1-t)*(1-t); }
+  function easeIn(t){ return t*t; }
+
+  function tween(obj, to, ms, ef, onUp, onEnd){
+    var s=null, from={}, cancelled=false;
+    for(var k in to) from[k]=obj[k];
+    function step(ts){
+      if(cancelled)return;
+      if(!s)s=ts;
+      var t=Math.min(1,(ts-s)/ms), e=ef(t);
+      for(var k in to) obj[k]=from[k]+(to[k]-from[k])*e;
+      if(onUp)onUp();
+      t<1?requestAnimationFrame(step):onEnd&&onEnd();
+    }
+    requestAnimationFrame(step);
+    return{cancel:function(){cancelled=true;}};
+  }
+
+  function fadeEls(els, to, ms, onEnd){
+    if(!els||!els.length){onEnd&&onEnd();return{cancel:function(){}};}
+    var done=0, hs=[];
+    Array.prototype.forEach.call(els, function(el){
+      var o={v:parseFloat(el.style.opacity)||0};
+      hs.push(tween(o,{v:to},ms,ease2,function(){el.style.opacity=o.v;},function(){if(++done===els.length&&onEnd)onEnd();}));
+    });
+    return{cancel:function(){hs.forEach(function(h){h.cancel();});}};
+  }
+
+  function parallel(fns, onEnd){
+    if(!fns.length){onEnd&&onEnd();return;}
+    var left=fns.length;
+    fns.forEach(function(fn){fn(function(){--left===0&&onEnd&&onEnd();});});
+  }
+
+  function wait(ms, cb){ setTimeout(cb, ms); }
+
+  /* =====================================================
+     SETUP
+  ===================================================== */
+  // sea waves
+  var sw=document.getElementById('sea-waves');
+  for(var i=0;i<16;i++){
+    var y=540+i*22+(i%2?8:0);
+    var el=document.createElementNS('http://www.w3.org/2000/svg','line');
+    el.setAttribute('class','sea-wave');
+    el.setAttribute('x1',-60+(i%4)*40); el.setAttribute('y1',y);
+    el.setAttribute('x2',1680); el.setAttribute('y2',y+(i%2?-5:7));
+    sw.appendChild(el);
+  }
+
+  // frame ticks
+  var ft=document.getElementById('frame-ticks');
+  for(var f=0;f<38;f++){
+    var fx=268+f*30;
+    var lf=document.createElementNS('http://www.w3.org/2000/svg','line');
+    lf.setAttribute('class','frame-tick');
+    lf.setAttribute('x1',fx); lf.setAttribute('y1',420);
+    lf.setAttribute('x2',fx); lf.setAttribute('y2',430);
+    ft.appendChild(lf);
+    var tf=document.createElementNS('http://www.w3.org/2000/svg','text');
+    tf.setAttribute('x',fx); tf.setAttribute('y',440);
+    tf.setAttribute('text-anchor','middle');
+    tf.setAttribute('font-size','5'); tf.setAttribute('fill','#304858');
+    tf.setAttribute('opacity','.6');
+    tf.textContent=f+1;
+    ft.appendChild(tf);
+  }
+
+  var VW=1600,VH=900;
+  var world=document.getElementById('world');
+
+  /* zones */
+  var ZONES=[
+    {id:'zone-t4',  ring:'ring-t4',  ov:'ov-0', mm:'mm-t4',  cam:{x:422,y:390,sc:2.8}, ex:0,   ey:-95,  nav:0,
+     title:'No.4 Cargo Tank', tag:'Zone 1 / 7',
+     body:'Forward-most Type-C pressure vessel. Separated from No.3 tank by a gas-tight cofferdam. Port/starboard water ballast tanks sit below the tank bottom.'},
+    {id:'zone-t3',  ring:'ring-t3',  ov:'ov-1', mm:'mm-t3',  cam:{x:622,y:387,sc:2.7}, ex:0,   ey:-95,  nav:1,
+     title:'No.3 Cargo Tank', tag:'Zone 2 / 7',
+     body:'Identical to No.4 tank configuration. Gas vent riser connects to the common vapour header running the length of the trunk deck.'},
+    {id:'zone-t2',  ring:'ring-t2',  ov:'ov-2', mm:'mm-t2',  cam:{x:820,y:360,sc:2.5}, ex:0,   ey:-95,  nav:2,
+     title:'No.2 Cargo Tank — Centre of Manifold', tag:'Zone 3 / 7',
+     body:'Largest tank plus the cargo manifold amidships. Loading arms connect here for shore-to-ship transfer. BOG vapour return runs back to reliquefaction plant.'},
+    {id:'zone-t1',  ring:'ring-t1',  ov:'ov-3', mm:'mm-t1',  cam:{x:1010,y:390,sc:2.7}, ex:0,  ey:-95,  nav:3,
+     title:'No.1 Cargo Tank', tag:'Zone 4 / 7',
+     body:'Aft-most cargo tank. Adjacent to the cargo machinery room bulkhead. Fore peak ballast tank visible at frame 1.'},
+    {id:'zone-mach',ring:'ring-mach',ov:'ov-4', mm:'mm-mach', cam:{x:1148,y:380,sc:2.2}, ex:22, ey:-100, nav:4,
+     title:'Cargo Machinery Room', tag:'Zone 5 / 7',
+     body:'Houses BOG compressors, reliquefaction plant, and cargo pumps. The overhead crane gantry handles maintenance of heavy compressor components.'},
+    {id:'zone-eng', ring:'ring-eng', ov:'ov-5', mm:'mm-eng',  cam:{x:1310,y:460,sc:2.1}, ex:45, ey:95,   nav:5,
+     title:'Main Engine Room', tag:'Zone 6 / 7',
+     body:'6-cylinder 2-stroke slow-speed main engine drives a single fixed-pitch propeller via a direct shaft. Steering gear room houses the electro-hydraulic rudder actuators.'},
+    {id:'zone-accom',ring:'ring-accom',ov:'ov-6',mm:'mm-accom',cam:{x:1270,y:300,sc:2.1},ex:12,ey:-140,nav:6,
+     title:'Accommodation Block', tag:'Zone 7 / 7',
+     body:'Six decks from E (lower) to Navigation. Bridge occupies B deck with panoramic windows. Nav mast carries radar and communication antennas. Funnel vents exhaust aft of block.'},
+  ];
+
+  var zoneEls=ZONES.map(function(z){return document.getElementById(z.id);});
+  var ringEls=ZONES.map(function(z){return document.getElementById(z.ring);});
+  var ovEls  =ZONES.map(function(z){return document.getElementById(z.ov);});
+
+  var overviewCam={x:790,y:490,sc:1.0};
+  var camState={x:790,y:490,sc:1.0};
+  var zoneState=ZONES.map(function(){return{dx:0,dy:0};});
+
+  function renderCam(){
+    var tx=VW/2-camState.x*camState.sc;
+    var ty=VH/2-camState.y*camState.sc;
+    world.setAttribute('transform','translate('+tx+','+ty+') scale('+camState.sc+')');
+  }
+  function renderZone(i){
+    var s=zoneState[i];
+    zoneEls[i].setAttribute('transform','translate('+s.dx.toFixed(1)+','+s.dy.toFixed(1)+')');
+  }
+  renderCam();
+  zoneState.forEach(function(_,i){renderZone(i);});
+
+  // init opacities
+  ovEls.forEach(function(g){
+    if(!g)return;
+    g.querySelectorAll('.ldr,.ldot,.ltxt,.lsub,.hpill,.lbg').forEach(function(e){e.style.opacity=0;});
+  });
+  ringEls.forEach(function(e){if(e)e.style.opacity=0;});
+
+  // auto-fit hazard pills: measure each pill's text and resize/re-center
+  // the rect + dot + text as one block so text never spills out of its box
+  document.querySelectorAll('.hpill').forEach(function(pill){
+    var rect=pill.querySelector('rect');
+    var dot=pill.querySelector('circle');
+    var txt=pill.querySelector('text');
+    if(!rect||!dot||!txt)return;
+    var textW;
+    try{ textW=txt.getBBox().width; }catch(e){ textW=txt.textContent.length*6.5; }
+    var dotR=4, gap=8, padL=14, padR=16;
+    var contentW=dotR*2+gap+textW;
+    var half=contentW/2+padL/2+padR/2;
+    var rectLeft=-half;
+    var dotCx=rectLeft+padL+dotR;
+    var textX=dotCx+dotR+gap;
+    rect.setAttribute('x',rectLeft.toFixed(1));
+    rect.setAttribute('width',(half*2).toFixed(1));
+    dot.setAttribute('cx',dotCx.toFixed(1));
+    txt.setAttribute('x',textX.toFixed(1));
+    txt.removeAttribute('text-anchor');
+  });
+
+  // auto-fit label backdrops: measure each zone's title+subtitle text block
+  // and size/position a solid panel behind it, so the text is always
+  // readable no matter what ship detail happens to sit underneath it
+  ovEls.forEach(function(g, i){
+    if(!g)return;
+    var bg=g.querySelector('.lbg');
+    var ltxt=g.querySelector('.ltxt');
+    var lsub=g.querySelector('.lsub');
+    if(!bg||!ltxt)return;
+    var padX=10, padY=7, gapAbove=2;
+    var b1, b2;
+    try{ b1=ltxt.getBBox(); }catch(e){ b1=null; }
+    try{ b2=lsub?lsub.getBBox():null; }catch(e){ b2=null; }
+    if(!b1){return;}
+    var left=b1.x, right=b1.x+b1.width, top=b1.y, bottom=b1.y+b1.height;
+    if(b2){
+      left=Math.min(left,b2.x); right=Math.max(right,b2.x+b2.width);
+      top=Math.min(top,b2.y); bottom=Math.max(bottom,b2.y+b2.height);
+    }
+    bg.setAttribute('x',(left-padX).toFixed(1));
+    bg.setAttribute('y',(top-padY-gapAbove).toFixed(1));
+    bg.setAttribute('width',(right-left+padX*2).toFixed(1));
+    bg.setAttribute('height',(bottom-top+padY*2+gapAbove).toFixed(1));
+  });
+
+  /* helpers */
+  function moveCam(cam, ms, ef, done){
+    return tween(camState,{x:cam.x,y:cam.y,sc:cam.sc},ms,ef||ease2,renderCam,done);
+  }
+  function moveZone(i,dx,dy,ms,ef,done){
+    return tween(zoneState[i],{dx:dx,dy:dy},ms,ef||ease2,function(){renderZone(i);},done);
+  }
+  function showRing(i,on,ms,done){ var e=ringEls[i]; if(!e){done&&done();return;} var o={v:parseFloat(e.style.opacity)||0}; tween(o,{v:on?1:0},ms,ease2,function(){e.style.opacity=o.v;},done); }
+  function showOv(i,on,ms,done){
+    var g=ovEls[i]; if(!g){done&&done();return;}
+    fadeEls(g.querySelectorAll('.ldr,.ldot,.ltxt,.lsub,.hpill,.lbg'),on?1:0,ms,done);
+  }
+
+  /* =====================================================
+     ANIMATION CYCLE
+  ===================================================== */
+  var curSeq=null, curIdx=0;
+
+  function cancelSeq(){if(curSeq&&curSeq.cancelled!==true){curSeq.cancelled=true;}}
+
+  function runCycle(zi, onDone){
+    var seq={cancelled:false};
+    curSeq=seq;
+    var z=ZONES[zi];
+
+    // Phase 1: zoom in (1.5s)
+    moveCam(z.cam,1500,ease2,function(){
+      if(seq.cancelled)return;
+      // Phase 2: show ring + overlay (0.5s)
+      parallel([
+        function(cb){showRing(zi,true,400,cb);},
+        function(cb){showOv(zi,true,500,cb);}
+      ],function(){
+        if(seq.cancelled)return;
+        // Phase 3: hold (2s)
+        wait(2000,function(){
+          if(seq.cancelled)return;
+          // Phase 4: hide labels
+          showRing(zi,false,300,null);
+          showOv(zi,false,300,null);
+          wait(320,function(){
+            if(seq.cancelled)return;
+            // Phase 5: zoom out + explode all zones (1.4s)
+            parallel(
+              ZONES.map(function(_,i){
+                return function(cb){moveZone(i,ZONES[i].ex,ZONES[i].ey,1400,easeOut,cb);};
+              }).concat([function(cb){moveCam(overviewCam,1400,ease2,cb);}]),
+              function(){
+                if(seq.cancelled)return;
+                // Phase 6: hold exploded (0.5s)
+                wait(500,function(){
+                  if(seq.cancelled)return;
+                  // Phase 7: reassemble (1.2s)
+                  parallel(
+                    ZONES.map(function(_,i){return function(cb){moveZone(i,0,0,1200,ease2,cb);};}),
+                    function(){
+                      if(seq.cancelled)return;
+                      wait(600,function(){
+                        if(!seq.cancelled&&onDone)onDone();
+                      });
+                    }
+                  );
+                });
+              }
+            );
+          });
+        });
+      });
+    });
+
+    return seq;
+  }
+
+  function loop(startIdx){
+    var idx=startIdx||0;
+    function next(){
+      curIdx=idx;
+      runCycle(idx,function(){
+        idx=(idx+1)%ZONES.length;
+        next();
+      });
+    }
+    next();
+  }
+
+  // start (purely ambient — autoplay loop, no click interaction since this
+  // sits behind your real hero content with pointer-events:none)
+  loop(0);
+
+  /* smoke animation (CSS keyframe-style via rAF) */
+  var smokeEls=[
+    document.getElementById('smoke1'),
+    document.getElementById('smoke2'),
+    document.getElementById('smoke3')
+  ];
+  var t0=null;
+  function smokeTick(ts){
+    if(!t0)t0=ts;
+    var t=(ts-t0)/1000;
+    smokeEls.forEach(function(el,i){
+      if(!el)return;
+      var phase=t*0.4+i*0.7;
+      var cy=0-Math.sin(phase)*3;
+      var op=0.08+Math.sin(phase)*0.04;
+      var sc=1+Math.sin(phase*0.7)*0.12;
+      el.style.opacity=op;
+      el.setAttribute('transform','translate(0,'+cy.toFixed(1)+') scale('+sc.toFixed(2)+')');
+    });
+    requestAnimationFrame(smokeTick);
+  }
+  requestAnimationFrame(smokeTick);
+
+})();
+</script>
+</body>
+</html>
+
+
