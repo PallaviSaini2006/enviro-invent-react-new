@@ -1,6 +1,6 @@
 # Enviro Maint — Marketing Site (React)
 
-A premium, black-and-white marketing site for Enviro Maint, a maritime
+A premium, marketing site for Enviro Maint, a maritime
 hazardous material compliance platform. Built with React, Vite, and Tailwind CSS.
 
 This is a 1:1 React port of the original static HTML build — same copy, same
