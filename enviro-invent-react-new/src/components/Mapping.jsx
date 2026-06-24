@@ -9,7 +9,7 @@ import { Reveal, Eyebrow } from './Shared.jsx'
  *    Lobby (cleaning chemicals), Engine Changing Room (lubricants/solvents),
  *    CSB Room (boiler chemicals), Fish Room (refrigerants)
  *
- * marker.x/y are percentages of the SVG viewBox (760 × 700)
+ * marker.x/y are percentages of the SVG viewBox (638 × 768)
  */
 const CALLOUTS = [
   {
@@ -20,7 +20,7 @@ const CALLOUTS = [
     hazard: 'Flammable',
     hazardColor: '#1A7A40',
     body: 'Marine Gas Oil inventory mapped with quantity, MSDS documentation and spill-containment zone boundaries.',
-    marker: { cx: 78, cy: 178 },
+    marker: { cx: 115, cy: 175 },
     severity: 'high',
   },
   {
@@ -31,7 +31,7 @@ const CALLOUTS = [
     hazard: 'Flammable',
     hazardColor: '#1A7A40',
     body: 'Active service tank feeding main engine and generators. Continuous monitoring required under MARPOL Annex I.',
-    marker: { cx: 290, cy: 68 },
+    marker: { cx: 320, cy: 175 },
     severity: 'high',
   },
   {
@@ -42,7 +42,7 @@ const CALLOUTS = [
     hazard: 'Flammable',
     hazardColor: '#1A7A40',
     body: 'Bulk MGO reserve. Transfer piping to service tank contains residual fuel — classified hazardous under HKC Schedule I.',
-    marker: { cx: 560, cy: 68 },
+    marker: { cx: 530, cy: 175 },
     severity: 'high',
   },
   {
@@ -53,7 +53,7 @@ const CALLOUTS = [
     hazard: 'Anti-fouling / Biocide',
     hazardColor: '#1A7A40',
     body: 'Ballast water treatment chemicals and corrosion inhibitors. Documented under EU SRR Article 13 biocide inventory.',
-    marker: { cx: 220, cy: 35 },
+    marker: { cx: 150, cy: 90 },
     severity: 'medium',
   },
   {
@@ -64,7 +64,7 @@ const CALLOUTS = [
     hazard: 'Lubricants / Solvents',
     hazardColor: '#22A052',
     body: 'Stored lubricating oils, hydraulic fluid, and cleaning solvents. PCB-containing materials flagged during 2023 survey.',
-    marker: { cx: 338, cy: 530 },
+    marker: { cx: 315, cy: 640 },
     severity: 'medium',
   },
   {
@@ -75,7 +75,7 @@ const CALLOUTS = [
     hazard: 'Boiler Chemicals',
     hazardColor: '#22A052',
     body: 'Chemical scale and biocide treatment agents for boiler and cooling systems. Toxic under Basel Convention Schedule.',
-    marker: { cx: 630, cy: 370 },
+    marker: { cx: 540, cy: 435 },
     severity: 'medium',
   },
   {
@@ -86,7 +86,7 @@ const CALLOUTS = [
     hazard: 'Refrigerants (ODS)',
     hazardColor: '#135C30',
     body: 'R-22 / HCFC refrigerant in cold store system — ozone-depleting substance requiring phase-out plan per Montreal Protocol.',
-    marker: { cx: 338, cy: 415 },
+    marker: { cx: 305, cy: 475 },
     severity: 'low',
   },
 ]
@@ -104,7 +104,7 @@ function DeckPlanSVG({ active, onHover }) {
 
   return (
     <svg
-      viewBox="0 0 760 700"
+      viewBox="0 0 638 768"
       className="w-full h-auto"
       aria-label="Ship deck plan with hazardous material markers"
       style={{ fontFamily: "'JetBrains Mono', monospace" }}
@@ -128,171 +128,9 @@ function DeckPlanSVG({ active, onHover }) {
       </defs>
 
       {/* ══════════════════════════════════════════════════════
-          DECK PLAN BACKGROUND — replicating the screenshot
+          DECK PLAN BACKGROUND — Actual Screenshot
       ══════════════════════════════════════════════════════ */}
-
-      {/* Overall outer boundary */}
-      <rect x="10" y="10" width="730" height="680" rx="2"
-        fill="#F8F8F6" stroke="#1a2830" strokeWidth="1.5" />
-
-      {/* ── TOP ZONE: Tank Row ───────────────────────────── */}
-      {/* Outer tank boundary */}
-      <rect x="10" y="10" width="730" height="120" fill="#EEF2F0" stroke="#1a2830" strokeWidth="1.2" />
-      {/* IGG MGO Tank */}
-      <rect x="10" y="10" width="138" height="120" fill="#E8F0EE" stroke="#1a2830" strokeWidth="1" />
-      <text x="30" y="55" fontSize="8.5" fill="#2a3840" fontWeight="600">IGG MGO</text>
-      <text x="30" y="68" fontSize="8.5" fill="#2a3840" fontWeight="600">TANK</text>
-      {/* engine room sub-diagram in IGG tank area */}
-      <rect x="18" y="18" width="70" height="55" rx="1" fill="none" stroke="#607880" strokeWidth="0.8" strokeDasharray="3 2" />
-      <rect x="22" y="22" width="30" height="22" rx="1" fill="#d0dce2" stroke="#607880" strokeWidth="0.6" />
-      <rect x="56" y="22" width="26" height="22" rx="1" fill="#d0dce2" stroke="#607880" strokeWidth="0.6" />
-      <rect x="22" y="48" width="56" height="22" rx="1" fill="#c8d4da" stroke="#607880" strokeWidth="0.6" />
-      {/* Divider after IGG tank */}
-      <line x1="148" y1="10" x2="148" y2="130" stroke="#1a2830" strokeWidth="1.2" />
-
-      {/* Engine Room Water Ballast Tank center label */}
-      <text x="155" y="50" fontSize="8" fill="#2a3840" fontWeight="700">ENGINE ROOM WATER BALLAST TANK (P)</text>
-
-      {/* Ballast tank detail lines */}
-      <line x1="148" y1="90" x2="580" y2="90" stroke="#607880" strokeWidth="0.7" strokeDasharray="4 3" opacity="0.5" />
-      <path d="M165,95 L195,65 M210,65 L240,95 M255,95 L285,65 M300,65 L330,95"
-        stroke="#607880" strokeWidth="0.6" fill="none" opacity="0.4" />
-
-      {/* Divider between ballast and MGO tanks */}
-      <line x1="420" y1="10" x2="420" y2="130" stroke="#1a2830" strokeWidth="1.2" />
-
-      {/* No.2 MGO Service Tank */}
-      <rect x="420" y="10" width="155" height="120" fill="#E8F4EE" stroke="#1a2830" strokeWidth="1" />
-      <text x="435" y="55" fontSize="8" fill="#2a3840" fontWeight="600">NO.2 MGO</text>
-      <text x="435" y="68" fontSize="8" fill="#2a3840" fontWeight="600">SERVICE TANK</text>
-      <line x1="440" y1="80" x2="560" y2="80" stroke="#1A7A40" strokeWidth="0.7" strokeDasharray="3 2" opacity="0.5" />
-      <line x1="440" y1="90" x2="560" y2="90" stroke="#1A7A40" strokeWidth="0.7" strokeDasharray="3 2" opacity="0.5" />
-
-      {/* Divider */}
-      <line x1="575" y1="10" x2="575" y2="130" stroke="#1a2830" strokeWidth="1.2" />
-
-      {/* No.2 MGO Storage Tank */}
-      <rect x="575" y="10" width="165" height="120" fill="#E8F4EE" stroke="#1a2830" strokeWidth="1" />
-      <text x="590" y="55" fontSize="8" fill="#2a3840" fontWeight="600">NO.2 MGO</text>
-      <text x="590" y="68" fontSize="8" fill="#2a3840" fontWeight="600">STORAGE TANK</text>
-      <line x1="595" y1="80" x2="725" y2="80" stroke="#1A7A40" strokeWidth="0.7" strokeDasharray="3 2" opacity="0.5" />
-      <line x1="595" y1="95" x2="725" y2="95" stroke="#1A7A40" strokeWidth="0.7" strokeDasharray="3 2" opacity="0.5" />
-
-      {/* ── MIDDLE ZONE: Provision & Living Spaces ──────── */}
-      {/* Horizontal divider */}
-      <line x1="10" y1="130" x2="740" y2="130" stroke="#1a2830" strokeWidth="1.2" />
-
-      {/* Left column: Vegetable Room */}
-      <rect x="10" y="130" width="148" height="120" fill="#F2F4F0" stroke="#1a2830" strokeWidth="1" />
-      <text x="28" y="192" fontSize="8.5" fill="#2a3840" fontWeight="600">VEGETABLE</text>
-      <text x="28" y="205" fontSize="8.5" fill="#2a3840" fontWeight="600">ROOM</text>
-      {/* Door symbol */}
-      <path d="M130,220 Q148,220 148,240" fill="none" stroke="#607880" strokeWidth="0.9" />
-      <line x1="130" y1="220" x2="130" y2="248" stroke="#607880" strokeWidth="0.9" />
-
-      {/* Dairy Room */}
-      <rect x="158" y="130" width="152" height="120" fill="#F2F4F0" stroke="#1a2830" strokeWidth="1" />
-      <line x1="158" y1="130" x2="158" y2="250" stroke="#1a2830" strokeWidth="1.2" />
-      <text x="178" y="192" fontSize="8.5" fill="#2a3840" fontWeight="600">DAIRY ROOM</text>
-      <path d="M280,220 Q310,220 310,248" fill="none" stroke="#607880" strokeWidth="0.9" />
-      <line x1="280" y1="220" x2="280" y2="248" stroke="#607880" strokeWidth="0.9" />
-
-      {/* Meat Room */}
-      <rect x="310" y="130" width="160" height="120" fill="#F2F4F0" stroke="#1a2830" strokeWidth="1" />
-      <line x1="310" y1="130" x2="310" y2="250" stroke="#1a2830" strokeWidth="1.2" />
-      <text x="348" y="192" fontSize="8.5" fill="#2a3840" fontWeight="600">MEAT ROOM</text>
-      <path d="M420,220 Q470,220 470,248" fill="none" stroke="#607880" strokeWidth="0.9" />
-      <line x1="420" y1="220" x2="420" y2="248" stroke="#607880" strokeWidth="0.9" />
-
-      {/* Right column: upper right piping corridor */}
-      <rect x="470" y="130" width="270" height="120" fill="#EEF0EE" stroke="#1a2830" strokeWidth="1" />
-      <line x1="470" y1="130" x2="470" y2="250" stroke="#1a2830" strokeWidth="1.2" />
-      {/* piping details */}
-      <line x1="490" y1="150" x2="730" y2="150" stroke="#607880" strokeWidth="0.7" />
-      <line x1="490" y1="165" x2="730" y2="165" stroke="#607880" strokeWidth="0.7" />
-      <circle cx="510" cy="157" r="5" fill="none" stroke="#607880" strokeWidth="0.8" />
-      <circle cx="560" cy="157" r="5" fill="none" stroke="#607880" strokeWidth="0.8" />
-      <circle cx="620" cy="157" r="5" fill="none" stroke="#607880" strokeWidth="0.8" />
-      <circle cx="680" cy="157" r="5" fill="none" stroke="#607880" strokeWidth="0.8" />
-
-      {/* ── MIDDLE ZONE 2: Row with Lobby ───────────────── */}
-      <line x1="10" y1="250" x2="740" y2="250" stroke="#1a2830" strokeWidth="1.2" />
-
-      {/* Left: Dry Provision Store (tall) */}
-      <rect x="10" y="250" width="148" height="320" fill="#F2F4F0" stroke="#1a2830" strokeWidth="1" />
-      <text x="28" y="365" fontSize="8.5" fill="#2a3840" fontWeight="600">DRY PROVISION</text>
-      <text x="28" y="378" fontSize="8.5" fill="#2a3840" fontWeight="600">STORE</text>
-      {/* To Galley arrow */}
-      <text x="18" y="545" fontSize="7" fill="#607880" transform="rotate(-90 18 545)">TO GALLEY →</text>
-
-      {/* Center: Lobby */}
-      <rect x="158" y="250" width="152" height="90" fill="#EAEEED" stroke="#1a2830" strokeWidth="1" />
-      <text x="205" y="300" fontSize="8.5" fill="#2a3840" fontWeight="600">LOBBY</text>
-      {/* Door symbols in lobby */}
-      <path d="M175,335 Q175,338 172,340" fill="none" stroke="#607880" strokeWidth="0.8" />
-      <path d="M250,295 Q258,295 258,303" fill="none" stroke="#607880" strokeWidth="0.8" />
-      <line x1="258" y1="295" x2="258" y2="315" stroke="#607880" strokeWidth="0.8" />
-
-      {/* Fish Room */}
-      <rect x="158" y="340" width="312" height="130" fill="#EEF2F0" stroke="#1a2830" strokeWidth="1" />
-      <line x1="158" y1="340" x2="470" y2="340" stroke="#1a2830" strokeWidth="1.2" />
-      <text x="265" y="405" fontSize="8.5" fill="#2a3840" fontWeight="600">FISH ROOM</text>
-      {/* Refrigeration pipes */}
-      <line x1="175" y1="360" x2="460" y2="360" stroke="#607880" strokeWidth="0.6" strokeDasharray="4 3" opacity="0.5" />
-      <line x1="175" y1="440" x2="460" y2="440" stroke="#607880" strokeWidth="0.6" strokeDasharray="4 3" opacity="0.5" />
-      <rect x="175" y="370" width="50" height="60" rx="2" fill="#D8E8E4" stroke="#607880" strokeWidth="0.7" />
-      <rect x="240" y="370" width="50" height="60" rx="2" fill="#D8E8E4" stroke="#607880" strokeWidth="0.7" />
-      <rect x="305" y="370" width="50" height="60" rx="2" fill="#D8E8E4" stroke="#607880" strokeWidth="0.7" />
-      <rect x="370" y="370" width="80" height="60" rx="2" fill="#D8E8E4" stroke="#607880" strokeWidth="0.7" />
-
-      {/* Center right: Meat/Service passage */}
-      <rect x="310" y="250" width="160" height="90" fill="#F2F4F0" stroke="#1a2830" strokeWidth="1" />
-      <line x1="310" y1="250" x2="310" y2="340" stroke="#1a2830" strokeWidth="1.2" />
-      {/* Staircase symbol */}
-      <rect x="320" y="260" width="50" height="70" fill="none" stroke="#607880" strokeWidth="0.7" />
-      <line x1="320" y1="270" x2="370" y2="270" stroke="#607880" strokeWidth="0.5" />
-      <line x1="320" y1="280" x2="370" y2="280" stroke="#607880" strokeWidth="0.5" />
-      <line x1="320" y1="290" x2="370" y2="290" stroke="#607880" strokeWidth="0.5" />
-      <line x1="320" y1="300" x2="370" y2="300" stroke="#607880" strokeWidth="0.5" />
-      <line x1="320" y1="310" x2="370" y2="310" stroke="#607880" strokeWidth="0.5" />
-      <line x1="320" y1="320" x2="370" y2="320" stroke="#607880" strokeWidth="0.5" />
-      <text x="378" y="300" fontSize="7.5" fill="#607880">TO ER</text>
-
-      {/* Right column middle: CSB Room */}
-      <rect x="470" y="250" width="270" height="220" fill="#EEF2EE" stroke="#1a2830" strokeWidth="1" />
-      <line x1="470" y1="250" x2="470" y2="470" stroke="#1a2830" strokeWidth="1.2" />
-      <text x="530" y="365" fontSize="8.5" fill="#2a3840" fontWeight="600">CSB ROOM (P)</text>
-      {/* Chemical storage details */}
-      <rect x="490" y="270" width="45" height="35" rx="2" fill="#D8E8E0" stroke="#607880" strokeWidth="0.7" />
-      <rect x="545" y="270" width="45" height="35" rx="2" fill="#D8E8E0" stroke="#607880" strokeWidth="0.7" />
-      <rect x="490" y="320" width="95" height="35" rx="2" fill="#D8E8E0" stroke="#607880" strokeWidth="0.7" />
-      <line x1="490" y1="390" x2="720" y2="390" stroke="#607880" strokeWidth="0.6" strokeDasharray="3 2" opacity="0.4" />
-
-      {/* ── BOTTOM ZONE: Engine Changing Room ──────────── */}
-      <line x1="10" y1="470" x2="740" y2="470" stroke="#1a2830" strokeWidth="1.2" />
-      <rect x="158" y="470" width="312" height="220" fill="#EEF0EE" stroke="#1a2830" strokeWidth="1" />
-      <text x="230" y="560" fontSize="8.5" fill="#2a3840" fontWeight="600">ENGINE CHANGING RM</text>
-      {/* Engine detail elements */}
-      <rect x="175" y="490" width="80" height="120" rx="2" fill="#D8DCE0" stroke="#607880" strokeWidth="0.8" />
-      <rect x="178" y="495" width="74" height="12" rx="1" fill="#C0C8D0" stroke="#607880" strokeWidth="0.5" />
-      <rect x="178" y="512" width="74" height="12" rx="1" fill="#C0C8D0" stroke="#607880" strokeWidth="0.5" />
-      <rect x="178" y="529" width="74" height="12" rx="1" fill="#C0C8D0" stroke="#607880" strokeWidth="0.5" />
-      <rect x="178" y="546" width="74" height="12" rx="1" fill="#C0C8D0" stroke="#607880" strokeWidth="0.5" />
-      <rect x="178" y="563" width="74" height="12" rx="1" fill="#C0C8D0" stroke="#607880" strokeWidth="0.5" />
-      {/* Fire symbol F */}
-      <rect x="370" y="590" width="18" height="18" fill="#E8F4EE" stroke="#1A7A40" strokeWidth="0.8" />
-      <text x="374" y="602" fontSize="9" fill="#1A7A40" fontWeight="700">F</text>
-
-      {/* Right lower: piping */}
-      <rect x="470" y="470" width="270" height="220" fill="#EEF2EE" stroke="#1a2830" strokeWidth="1" />
-      <line x1="470" y1="470" x2="470" y2="690" stroke="#1a2830" strokeWidth="1.2" />
-      <circle cx="510" cy="520" r="18" fill="none" stroke="#607880" strokeWidth="0.8" />
-      <circle cx="560" cy="560" r="18" fill="none" stroke="#607880" strokeWidth="0.8" />
-      <circle cx="510" cy="610" r="14" fill="none" stroke="#607880" strokeWidth="0.8" />
-      <circle cx="580" cy="630" r="10" fill="none" stroke="#607880" strokeWidth="0.8" />
-
-      {/* ── SCAN LINE ANIMATION (ambient pulse sweep) ─── */}
-      <AnimatedScanLine />
+      <image href="/deck-plan.png" x="0" y="0" width="638" height="768" />
 
       {/* ══════════════════════════════════════════════════════
           HAZARDOUS MATERIAL MARKERS
@@ -392,23 +230,26 @@ function DeckPlanSVG({ active, onHover }) {
           <line
             x1={activeCallout.marker.cx}
             y1={activeCallout.marker.cy}
-            x2="748"
+            x2="628"
             y2={activeCallout.marker.cy}
             stroke={activeCallout.hazardColor}
             strokeWidth="0.8"
             strokeDasharray="4 3"
             opacity="0.35"
           />
-          <circle cx="748" cy={activeCallout.marker.cy} r="2.5" fill={activeCallout.hazardColor} opacity="0.5" />
+          <circle cx="628" cy={activeCallout.marker.cy} r="2.5" fill={activeCallout.hazardColor} opacity="0.5" />
         </g>
       )}
+
+      {/* ── SCAN LINE ANIMATION (ambient pulse sweep) ─── */}
+      <AnimatedScanLine />
     </svg>
   )
 }
 
 /* ── Animated scan line (ambient, functional: shows "live scan" state) */
 function AnimatedScanLine() {
-  const [pos, setPos] = useState(10)
+  const [pos, setPos] = useState(15)
   const dirRef = useRef(1)
   const rafRef = useRef(null)
   const lastRef = useRef(null)
@@ -424,9 +265,9 @@ function AnimatedScanLine() {
 
       setPos((p) => {
         const next = p + dirRef.current * (dt * 0.04)
-        if (next >= 688) dirRef.current = -1
-        if (next <= 12) dirRef.current = 1
-        return Math.max(12, Math.min(688, next))
+        if (next >= 750) dirRef.current = -1
+        if (next <= 15) dirRef.current = 1
+        return Math.max(15, Math.min(750, next))
       })
       rafRef.current = requestAnimationFrame(tick)
     }
@@ -438,7 +279,7 @@ function AnimatedScanLine() {
     <line
       x1="10"
       y1={pos}
-      x2="740"
+      x2="628"
       y2={pos}
       stroke="url(#scanGrad)"
       strokeWidth="18"
