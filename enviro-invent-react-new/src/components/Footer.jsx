@@ -19,7 +19,7 @@ export default function Footer() {
             <span className="hidden sm:block text-[11px] font-mono text-accent uppercase tracking-widest">Eco Maritime Intelligence</span>
           </div>
 
-          <div className="flex gap-7">
+          <div className="flex flex-wrap justify-center sm:justify-start gap-5">
             <a href="#home"         className="hover:text-accent transition-colors">Home</a>
             <a href="#problem"      className="hover:text-accent transition-colors">Problem</a>
             <a href="#platform"     className="hover:text-accent transition-colors">Platform</a>

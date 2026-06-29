@@ -1,22 +1,49 @@
 import express from 'express'
 import cors from 'cors'
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
+import fs from 'fs'
+import path from 'path'
 import { buildDemoRequestEmail } from './src/emailTemplate.js'
 
-// Load environment variables from .env file (native in Node.js 20.6.0+)
+// Robust manual .env loader fallback to guarantee env vars are loaded across all Node platforms & spawners
 try {
-  process.loadEnvFile()
+  const envPath = path.resolve(process.cwd(), '.env')
+  if (fs.existsSync(envPath)) {
+    const envConfig = fs.readFileSync(envPath, 'utf8')
+    envConfig.split('\n').forEach(line => {
+      const trimmed = line.trim()
+      if (trimmed && !trimmed.startsWith('#')) {
+        const [key, ...values] = trimmed.split('=')
+        if (key && values.length > 0) {
+          process.env[key.trim()] = values.join('=').trim()
+        }
+      }
+    })
+  }
 } catch (err) {
-  // Silent fallback if .env file is missing or handled externally
+  // Silent fallback
 }
 
 const app = express()
 const PORT = 3001
 
-// ⚠️  Keep this key secret — loaded from process.env.RESEND_API_KEY
-const resend = new Resend(process.env.RESEND_API_KEY || '')
+const SMTP_HOST = process.env.SMTP_HOST || 'enviro-maint.com'
+const SMTP_PORT = parseInt(process.env.SMTP_PORT || '465', 10)
+const SMTP_SECURE = process.env.SMTP_SECURE === 'true' || SMTP_PORT === 465
+const SMTP_USER = process.env.SMTP_USER || 'noreply-demo@enviro-maint.com'
+const SMTP_PASS = process.env.SMTP_PASS || 'Alfa@460#2024%'
+const RECIPIENT_EMAIL = process.env.RECIPIENT_EMAIL || 'demo@enviro-maint.com'
 
-const RECIPIENT_EMAIL = 'pallavisaini.ps2006@gmail.com'
+// Configure nodemailer SMTP transporter
+const transporter = nodemailer.createTransport({
+  host: SMTP_HOST,
+  port: SMTP_PORT,
+  secure: SMTP_SECURE,
+  auth: {
+    user: SMTP_USER,
+    pass: SMTP_PASS,
+  },
+})
 
 app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:5174'] }))
 app.use(express.json())
@@ -28,7 +55,7 @@ app.get('/', (req, res) => {
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Enviro Invent — Email API</title>
+  <title>Enviro Maint — Email API</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0d1f17;min-height:100vh;display:flex;align-items:center;justify-content:center;color:#fff}
@@ -49,12 +76,12 @@ app.get('/', (req, res) => {
 <body>
   <div class="card">
     <div class="badge"><span class="dot"></span> Server Online</div>
-    <div class="logo">Enviro<span>Invent</span></div>
+    <div class="logo">Enviro<span>Maint</span></div>
     <p class="subtitle">Email API Server is running.<br/>Listening on port <strong style="color:#a3c9b0">3001</strong></p>
     <div class="endpoint">
       <span class="method">POST</span>
       <div class="path">/api/send-email</div>
-      <div class="desc">Accepts { name, email, company, fleetSize?, message? } — sends a branded demo-request email via Resend.</div>
+      <div class="desc">Accepts { name, email, company, fleetSize?, message? } — sends a branded demo-request email via SMTP (${SMTP_USER}).</div>
     </div>
     <div class="footer">Connected to → ${RECIPIENT_EMAIL}</div>
   </div>
@@ -70,26 +97,23 @@ app.post('/api/send-email', async (req, res) => {
   }
 
   try {
-    const { data, error } = await resend.emails.send({
-      from: 'onboarding@resend.dev',
+    const info = await transporter.sendMail({
+      from: `"Enviro Maint" <${SMTP_USER}>`,
       to: RECIPIENT_EMAIL,
+      replyTo: email,
       subject: `Demo request — ${company}`,
       html: buildDemoRequestEmail({ name, email, company, fleetSize, message }),
     })
 
-    if (error) {
-      console.error('Resend error:', error)
-      return res.status(500).json({ error: error.message })
-    }
-
-    console.log(`✅ Email sent to ${RECIPIENT_EMAIL} (id: ${data.id})`)
-    return res.json({ success: true, id: data.id })
+    console.log(`✅ Email sent to ${RECIPIENT_EMAIL} (messageId: ${info.messageId})`)
+    return res.json({ success: true, id: info.messageId })
   } catch (err) {
-    console.error('Unexpected error:', err)
-    return res.status(500).json({ error: 'Failed to send email.' })
+    console.error('SMTP error sending email:', err)
+    return res.status(500).json({ error: err.message || 'Failed to send email via SMTP.' })
   }
 })
 
 app.listen(PORT, () => {
-  console.log(`\n🚀 Enviro Invent email API running at http://localhost:${PORT}`)
+  console.log(`\n🚀 Enviro Maint email API running at http://localhost:${PORT}`)
+  console.log(`📧 Configured SMTP User: ${SMTP_USER} (${SMTP_HOST}:${SMTP_PORT})`)
 })
