@@ -83,7 +83,7 @@ export default function Cta() {
             </Reveal>
             <Reveal delay={160}>
               <p className="mt-6 text-[17px] text-grey font-light leading-relaxed max-w-[440px]">
-                See how Enviro Invent maps, tracks, and manages compliance across your fleet — from
+                See how Enviro Maint maps, tracks, and manages compliance across your fleet — from
                 first inventory to final recycling.
               </p>
             </Reveal>
@@ -123,22 +123,33 @@ export default function Cta() {
             <div className="bg-paper border border-accent-line rounded-sm p-6 sm:p-8 shadow-sm">
               {status === 'sent' ? (
                 /* ── Success state ── */
-                <div className="py-8 text-center">
-                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-accent-muted mb-4">
-                    <svg className="w-7 h-7 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
+                <div className="py-10 text-center">
+                  {/* Animated green glow ring */}
+                  <div className="relative inline-flex items-center justify-center w-16 h-16 mb-5">
+                    <div
+                      className="absolute inset-0 rounded-full"
+                      style={{
+                        background: 'radial-gradient(circle, rgba(26,122,64,0.15) 0%, transparent 70%)',
+                        animation: 'pulse 2s ease-in-out infinite',
+                      }}
+                    />
+                    <div className="w-14 h-14 rounded-full bg-accent-muted border-2 border-accent flex items-center justify-center">
+                      <svg className="w-7 h-7 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
                   </div>
-                  <p className="font-display font-semibold text-xl mb-2">Request sent!</p>
-                  <p className="text-grey text-sm font-light max-w-[320px] mx-auto">
-                    We've received your demo request and will be in touch within one business day.
+                  <p className="font-display font-bold text-xl mb-1">Demo request sent!</p>
+                  <p className="text-grey text-sm font-light max-w-[300px] mx-auto leading-relaxed">
+                    Our team will reach out within one business day to schedule your personalized walkthrough.
                   </p>
                   <button
                     type="button"
                     onClick={() => setStatus('idle')}
-                    className="mt-5 text-sm font-medium underline"
+                    className="mt-6 text-sm font-medium text-accent hover:text-accent-dark transition-colors inline-flex items-center gap-1 group"
                   >
                     Send another request
+                    <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
                   </button>
                 </div>
               ) : (
@@ -208,7 +219,11 @@ export default function Cta() {
                   <button
                     type="submit"
                     disabled={status === 'loading'}
-                    className="mt-6 w-full inline-flex items-center justify-center gap-2 text-sm font-medium px-7 py-[15px] bg-accent text-paper rounded-sm hover:bg-accent-dark transition-colors duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
+                    className={`mt-6 w-full inline-flex items-center justify-center gap-2.5 text-sm font-semibold px-7 py-[15px] rounded-sm transition-all duration-300
+                      ${status === 'loading'
+                        ? 'bg-accent/80 text-paper cursor-wait shadow-[0_0_20px_rgba(26,122,64,0.3)]'
+                        : 'bg-accent text-paper hover:bg-accent-dark hover:-translate-y-0.5 hover:shadow-lg'}
+                      disabled:cursor-not-allowed`}
                   >
                     {status === 'loading' ? (
                       <>

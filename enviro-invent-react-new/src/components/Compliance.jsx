@@ -1,10 +1,10 @@
 import { Reveal, SectionHead } from './Shared.jsx'
 
 const FRAMEWORKS = [
-  { code: 'HKC',    title: 'Hong Kong Convention',        body: 'Safe and environmentally sound ship recycling requirements.' },
-  { code: 'IMO',    title: 'IMO Guidelines',              body: 'International standards for hazardous material inventories and survey.' },
-  { code: 'BASEL',  title: 'Basel Convention',            body: 'Controls on transboundary movement of hazardous waste.' },
-  { code: 'EU SRR', title: 'EU Ship Recycling Regulation',body: 'European requirements for vessel recycling and certification.' },
+  { code: 'HKC',    title: 'Hong Kong Convention',        body: 'Enviro Maint generates IHM-ready location data and survey records that meet HKC Part I and Part II requirements for flag-state submission.' },
+  { code: 'IMO',    title: 'IMO Guidelines',              body: 'Our structured material hierarchy and survey workflow maps directly to IMO resolution MEPC.269(68) and its biannual update cycles.' },
+  { code: 'BASEL',  title: 'Basel Convention',            body: 'Documented hazardous material evidence is packaged for exporting-nation reporting, satisfying the 2023 Annex IX Amendment before any scrapping contract.' },
+  { code: 'EU SRR', title: 'EU Ship Recycling Regulation',body: 'Enviro Maint produces certified IHM Part I reports and maintains continuous update logs to satisfy EU SRR Art. 12 port-state control checks.' },
 ]
 
 export default function Compliance() {
@@ -14,7 +14,7 @@ export default function Compliance() {
         <SectionHead
           eyebrow="Global Compliance"
           title="Aligned with the frameworks that govern your fleet."
-          body="Enviro Invent is structured around the regulatory bodies that ship owners and recyclers answer to worldwide."
+          body="Enviro Maint is structured around the regulatory bodies that ship owners and recyclers answer to worldwide."
         />
 
         <Reveal delay={100}>

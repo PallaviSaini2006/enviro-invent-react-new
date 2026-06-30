@@ -29,7 +29,7 @@ const REGULATIONS = [
     year: '2024',
     color: '#1A7A40',
     title: 'EU Ship Recycling Regulation — Art. 12 IHM mandate',
-    body: 'All EU-flagged vessels and ships calling at EU ports must maintain a verified Inventory of Hazardous Materials. As of 2024, ships must carry an IHM Part I certified by an authorised classification society or recycling authority.',
+    body: 'Vessels without a certified IHM Part I face port-state control detention at any EU port of call. Flag administrations may also suspend a ship\'s Certificate of Compliance, blocking it from trading until a full IHM audit is completed.',
     badge: 'In force',
   },
   {
@@ -37,7 +37,7 @@ const REGULATIONS = [
     year: '2025',
     color: '#22A052',
     title: 'Hong Kong Convention — Entered into force Jun 2025',
-    body: 'The IMO\'s Hong Kong Convention became binding in June 2025. Signatory states must ensure ships flying their flag carry a current IHM and that recycling facilities meet minimum safety and environmental standards.',
+    body: 'Since June 2025, ships sent for recycling without a valid IHM and a Ship Recycling Plan can be refused by any HKC-signatory facility. Flag-state inspectors may withdraw the International Ready for Recycling Certificate, grounding the vessel.',
     badge: 'Active',
   },
   {
@@ -45,7 +45,7 @@ const REGULATIONS = [
     year: 'Ongoing',
     color: '#1A7A40',
     title: 'IMO MEPC — Biannual compliance reviews',
-    body: 'The Marine Environment Protection Committee reviews and tightens IHM and waste management obligations each session. MEPC 82 (2024) introduced enhanced reporting requirements for hazardous material surveys.',
+    body: 'Each MEPC session can introduce new survey obligations with immediate effect. MEPC 82 (2024) added enhanced on-site verification requirements — fleets relying on static spreadsheets risk failing spot audits between scheduled surveys.',
     badge: 'Evolving',
   },
   {
@@ -53,7 +53,7 @@ const REGULATIONS = [
     year: '2023',
     color: '#22A052',
     title: 'Basel Convention — Amendment B to Annex IX',
-    body: 'The 2023 Basel Amendment tightened controls on transboundary movement of ship waste, requiring exporting countries to confirm that destination recycling facilities meet equivalent environmental and safety standards.',
+    body: 'The 2023 Amendment makes exporting nations legally liable if a destination yard cannot prove equivalent environmental controls. Shipowners must now provide documented hazardous material evidence before any scrapping contract is signed.',
     badge: 'Amended',
   },
 ]

@@ -1,42 +1,79 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 /**
  * ShipHero — full-bleed hero background animation.
  *
- * Design goals:
- *  • Fills 100% of the hero section absolutely (z-index 0)
- *  • Parallax: background scrolls at ~40% speed of page so it "stays"
- *    as the user scrolls — classic big-brand hero effect
- *  • Colors re-mapped to site palette (paper-white bg, grey hull, green accents)
- *  • Five gradient overlays blend all edges into the site background (#FAFAF8)
- *  • pointer-events: none — never blocks clicks
+ * Desktop: iframe canvas animation + parallax scroll effect
+ * Mobile:  lightweight static gradient (no iframe, no rAF, no battery drain)
  */
 export default function ShipHero({ containerRef }) {
   const wrapRef = useRef(null)
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 1024)
 
+  // Track mobile/desktop on resize
   useEffect(() => {
+    function onResize() { setIsMobile(window.innerWidth < 1024) }
+    window.addEventListener('resize', onResize, { passive: true })
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
+  // Parallax — desktop only
+  useEffect(() => {
+    if (isMobile) return
     const hero = containerRef?.current
     if (!hero || !wrapRef.current) return
 
     function onScroll() {
       const scrollY = window.scrollY
       const heroBottom = hero.offsetTop + hero.offsetHeight
-
-      // Only apply parallax while hero is in view
       if (scrollY > heroBottom) return
-
-      // Move ship container DOWN at 40% scroll speed → visually scrolls slower
       wrapRef.current.style.transform = `translateY(${scrollY * 0.42}px)`
     }
 
     window.addEventListener('scroll', onScroll, { passive: true })
-    onScroll() // apply initial state
+    onScroll()
     return () => window.removeEventListener('scroll', onScroll)
-  }, [containerRef])
+  }, [containerRef, isMobile])
 
+  /* ── Mobile: static, lightweight gradient background ── */
+  if (isMobile) {
+    return (
+      <div
+        className="absolute inset-0 pointer-events-none"
+        aria-hidden="true"
+        style={{
+          background: 'linear-gradient(160deg, #f0f8f3 0%, #e8f4ed 30%, #f5fbf7 60%, #FAFAF8 100%)',
+        }}
+      >
+        {/* Subtle green radial glow top-left */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: 'radial-gradient(ellipse 90% 55% at 15% 20%, rgba(26,122,64,0.10) 0%, transparent 70%)',
+          }}
+        />
+        {/* Soft wave pattern at bottom */}
+        <div
+          className="absolute bottom-0 left-0 right-0"
+          style={{
+            height: '40%',
+            background: 'linear-gradient(to top, rgba(168,213,184,0.22) 0%, transparent 100%)',
+          }}
+        />
+        {/* Bottom fade into site bg */}
+        <div
+          className="absolute bottom-0 left-0 right-0"
+          style={{
+            height: '30%',
+            background: 'linear-gradient(to top, #FAFAF8 0%, transparent 100%)',
+          }}
+        />
+      </div>
+    )
+  }
+
+  /* ── Desktop: full iframe animation + parallax ── */
   return (
-    // This outer div is absolute-positioned by Hero.jsx (position:absolute, inset-0)
-    // We give it extra height so the parallax has room to move without showing a gap
     <div
       ref={wrapRef}
       className="absolute left-0 right-0 pointer-events-none"
@@ -45,16 +82,17 @@ export default function ShipHero({ containerRef }) {
     >
       {/* ── Animated ship iframe ── */}
       <iframe
-        src="/ship-hero-light.html"
+        src="/ship-bwg.html"
         title="Ship diagram background"
         scrolling="no"
+        loading="lazy"
         className="absolute inset-0 w-full h-full border-0"
         style={{ pointerEvents: 'none', opacity: 0.82 }}
       />
 
       {/* ── Gradient overlays: blend all four edges into site bg #FAFAF8 ── */}
 
-      {/* Top — strong fade (nav area and hero heading must be on clean white) */}
+      {/* Top — strong fade */}
       <div
         className="absolute top-0 left-0 right-0 pointer-events-none z-10"
         style={{
@@ -63,7 +101,7 @@ export default function ShipHero({ containerRef }) {
         }}
       />
 
-      {/* Bottom — strong fade to white (transition into next section) */}
+      {/* Bottom — strong fade */}
       <div
         className="absolute bottom-0 left-0 right-0 pointer-events-none z-10"
         style={{
@@ -90,7 +128,7 @@ export default function ShipHero({ containerRef }) {
         }}
       />
 
-      {/* ── Subtle green tint to tie into eco identity ── */}
+      {/* ── Subtle green tint ── */}
       <div
         className="absolute inset-0 pointer-events-none z-[5]"
         style={{

@@ -141,9 +141,10 @@ function DeckPlanSVG({ active, onHover }) {
         return (
           <g
             key={c.id}
-            style={{ cursor: 'pointer' }}
+            style={{ cursor: 'pointer', touchAction: 'manipulation' }}
             onMouseEnter={() => onHover(c.id)}
             onFocus={() => onHover(c.id)}
+            onClick={() => onHover(c.id)}
           >
             {/* Outer pulse ring — only on active */}
             {isActive && (
@@ -324,11 +325,10 @@ export default function Mapping() {
 
       <section id="mapping" className="py-[90px] md:py-[140px]">
         <div className="max-w-site mx-auto px-6 md:px-12">
+          {/* Mobile: deck plan top, callout list below. Desktop: side-by-side */}
           <div className="grid md:grid-cols-[0.82fr_1.18fr] gap-10 md:gap-14 items-start">
 
-            {/* ═══════════════════════════════════
-                LEFT PANEL — callout list
-            ═══════════════════════════════════ */}
+            {/* LEFT PANEL — callout list */}
             <div>
               <Reveal>
                 <Eyebrow>Vessel Layout Intelligence</Eyebrow>
@@ -341,7 +341,7 @@ export default function Mapping() {
               </Reveal>
               <Reveal delay={160}>
                 <p className="mt-5 text-[16px] text-grey font-light leading-relaxed max-w-[440px]">
-                  Enviro Invent overlays hazardous material locations directly onto your vessel's
+                  Enviro Maint overlays hazardous material locations directly onto your vessel's
                   actual deck plans — so any surveyor, consultant, or recycling yard can find
                   what they need in seconds.
                 </p>
@@ -420,10 +420,8 @@ export default function Mapping() {
               </Reveal>
             </div>
 
-            {/* ═══════════════════════════════════
-                RIGHT PANEL — deck plan
-            ═══════════════════════════════════ */}
-            <Reveal variant="scale" delay={200}>
+            {/* RIGHT PANEL — deck plan (shown first on mobile) */}
+            <Reveal variant="scale" delay={200} className="md:mt-32">
               <div
                 ref={deckRef}
                 className="relative border border-grey-line bg-paper-dim rounded-sm overflow-hidden"

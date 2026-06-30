@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react'
+import { useRef } from 'react'
 
 /* ── Data: rotating screenshots in a marquee ─────────────────────────── */
 const MARQUEE_IMAGES = [
@@ -9,22 +9,10 @@ const MARQUEE_IMAGES = [
 ]
 
 /* ═══════════════════════════════════════════════════════════════════════
-   SCREENSHOT STRIP — horizontal scrolling gallery with parallax
-   Sits between sections to break up text-heavy areas
+   SCREENSHOT STRIP — CSS-animated marquee (zero JS per frame)
    ═══════════════════════════════════════════════════════════════════════ */
 export default function ScreenshotStrip() {
   const stripRef = useRef(null)
-  const [offset, setOffset] = useState(0)
-
-  useEffect(() => {
-    let raf
-    function tick() {
-      setOffset((prev) => (prev + 0.5) % (MARQUEE_IMAGES.length * 360))
-      raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-  }, [])
 
   // Duplicate for seamless loop
   const items = [...MARQUEE_IMAGES, ...MARQUEE_IMAGES]
@@ -41,10 +29,13 @@ export default function ScreenshotStrip() {
       <div className="absolute inset-y-0 right-0 w-24 z-10 pointer-events-none"
         style={{ background: 'linear-gradient(270deg, #F1F0EC, transparent)' }} />
 
-      {/* Scrolling strip */}
+      {/* CSS-animated strip — no JS rAF needed */}
       <div
         className="flex gap-6 will-change-transform"
-        style={{ transform: `translateX(-${offset}px)` }}
+        style={{
+          animation: 'marquee-scroll 30s linear infinite',
+          width: 'max-content',
+        }}
       >
         {items.map((img, i) => (
           <div

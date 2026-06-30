@@ -162,3 +162,34 @@ h1, h2, h3, h4, p {
 html {
   -webkit-overflow-scrolling: touch;
 }
+
+/* ── Touch interaction improvements ──────────────────────────── */
+
+/* Eliminate 300ms tap delay on all interactive elements */
+a, button, [role="button"], input, label, select, textarea, summary {
+  touch-action: manipulation;
+}
+
+
+/* ── Mobile-specific layout helpers ────────────────────────── */
+
+/* Clip overly-wide content on very narrow screens (360px) */
+@media (max-width: 400px) {
+  .max-w-site {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Pause heavy SVG animations on mobile to save battery */
+@media (max-width: 1023px) {
+  @keyframes marker-pulse {
+    0%, 100% { opacity: 0.3; }
+  }
+}
+
+/* ── Marquee scroll animation (GPU-accelerated, zero JS) ── */
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}

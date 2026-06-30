@@ -29,7 +29,7 @@ export default function Workflow() {
         <SectionHead
           eyebrow="The Workflow"
           title="One platform, one continuous record."
-          body="From the moment a material enters the vessel to the day it's recycled, Enviro Invent keeps inventory, location, and compliance status moving together."
+          body="From the moment a material enters the vessel to the day it's recycled, Enviro Maint keeps inventory, location, and compliance status moving together."
           dark
         />
 

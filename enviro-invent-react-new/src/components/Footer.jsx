@@ -12,10 +12,10 @@ export default function Footer() {
         </p>
       </div>
 
-      <div className="py-12 bg-paper">
+      <div className="py-6 bg-paper">
         <div className="max-w-site mx-auto px-6 md:px-12 flex flex-col sm:flex-row items-center justify-between gap-5 text-sm text-grey text-center sm:text-left">
           <div className="flex items-center gap-3">
-            <img src={logo} alt="Enviro Invent" className="h-10 w-auto object-contain"/>
+            <img src={logo} alt="Enviro Maint" className="h-10 w-auto object-contain"/>
             <span className="hidden sm:block text-[11px] font-mono text-accent uppercase tracking-widest">Eco Maritime Intelligence</span>
           </div>
 
@@ -29,8 +29,17 @@ export default function Footer() {
           </div>
 
           <div className="flex flex-col items-end gap-1">
-            <div>© 2026 Enviro Invent</div>
+            <div>© 2026 Enviro Maint</div>
             <span className="text-[10px] font-mono text-accent-line uppercase tracking-wider">Greener Oceans. Safer Ships.</span>
+          </div>
+        </div>
+
+        {/* ── Privacy / legal links ── */}
+        <div className="max-w-site mx-auto px-6 md:px-12 mt-4 pt-4 border-t border-grey-line">
+          <div className="flex flex-wrap justify-center gap-6">
+            <a href="#privacy" className="text-[11px] font-mono text-grey hover:text-accent transition-colors uppercase tracking-wider">Privacy Policy</a>
+            <a href="#privacy" className="text-[11px] font-mono text-grey hover:text-accent transition-colors uppercase tracking-wider">Cookie Policy</a>
+            <a href="#privacy" className="text-[11px] font-mono text-grey hover:text-accent transition-colors uppercase tracking-wider">Terms of Service</a>
           </div>
         </div>
       </div>

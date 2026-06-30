@@ -11,7 +11,7 @@ export default function Hero() {
       id="home"
       ref={sectionRef}
       className="relative overflow-hidden"
-      style={{ minHeight: '100vh' }}
+      style={{ minHeight: '100svh' }}
     >
       {/* ═══════════════════════════════════════════════════════
           BACKGROUND LAYER — animated ship (z-index 0)
@@ -44,7 +44,7 @@ export default function Hero() {
 
               {/* ── Sub-copy ── */}
               <p className="mt-8 max-w-[520px] text-lg text-grey font-light leading-relaxed">
-                Enviro Invent turns hazardous material records into a living map
+                Enviro Maint turns hazardous material records into a living map
                 of your vessel — locating, tracking, and managing every compliance
                 obligation from build to recycling.
               </p>
@@ -67,16 +67,16 @@ export default function Hero() {
               </div>
 
               {/* ── CTAs ── */}
-              <div className="mt-10 flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-8">
+              <div className="mt-10 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
                 <a
                   href="#cta"
-                  className="text-sm font-medium px-7 py-[15px] bg-accent text-paper rounded-sm hover:bg-accent-dark hover:-translate-y-0.5 transition-all duration-300 inline-block"
+                  className="text-sm font-medium px-7 py-[15px] bg-accent text-paper rounded-sm hover:bg-accent-dark hover:-translate-y-0.5 transition-all duration-300 text-center sm:inline-block"
                 >
                   Request a demo
                 </a>
                 <a
                   href="#platform"
-                  className="text-sm font-medium border-b border-accent pb-0.5 text-accent group inline-flex items-center gap-1"
+                  className="text-sm font-medium border-b border-accent pb-0.5 text-accent group inline-flex items-center justify-center sm:justify-start gap-1"
                 >
                   See how it works
                   <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
