@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ocean Ship - Afternoon to Evening</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:100%; height:100%; overflow:hidden; background:#e8f0e0; }
+  canvas { display:block; width:100%; height:100%; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+let t = 0;
+
+// ── Fish jumps ──
+const fishJumps = [
+  { triggerTime: 3.5,  xFrac: 0.76, arc: 0, active: false },
+  { triggerTime: 9.0,  xFrac: 0.80, arc: 0, active: false },
+  { triggerTime: 15.0, xFrac: 0.72, arc: 0, active: false },
+  { triggerTime: 20.0, xFrac: 0.78, arc: 0, active: false },
+];
+
+// ── Bio foam (light blue-white sparkle dots) ──
+const bioFoam = Array.from({length: 48}, (_, i) => ({
+  xFrac: 0.52 + Math.random() * 0.47,
+  yFrac: 0.58 + Math.random() * 0.36,
+  phase: Math.random() * Math.PI * 2,
+  r: 1.0 + Math.random() * 2.2,
+  spd: 0.4 + Math.random() * 0.7,
+  drift: (Math.random() - 0.5) * 0.0002
+}));
+
+// ── Sparkles on reflection path ──
+const sparks = Array.from({length: 28}, (_, i) => ({
+  xFrac: 0.54 + Math.random() * 0.44,
+  yOff: -18 + Math.random() * 36,
+  phase: Math.random() * Math.PI * 2,
+  r: 0.8 + Math.random() * 1.8
+}));
+
+// ── Clouds ──
+const clouds = [
+  { xFrac: 0.62, yFrac: 0.06, sc: 1.1,  spd: 0.000055, a: 0.90 },
+  { xFrac: 0.76, yFrac: 0.10, sc: 0.80, spd: 0.000038, a: 0.78 },
+  { xFrac: 0.90, yFrac: 0.04, sc: 0.95, spd: 0.000048, a: 0.85 },
+  { xFrac: 0.98, yFrac: 0.14, sc: 0.60, spd: 0.000065, a: 0.72 },
+];
+
+// ── Sailboat ──
+const sboat = { xFrac: 0.86, spd: 0.000022 };
+
+// ── Gulls ──
+const gulls = [
+  { xFrac: 0.92, yFrac: 0.22, spd: 0.00035, sz: 0.9 },
+  { xFrac: 0.70, yFrac: 0.28, spd: 0.00025, sz: 0.65 },
+];
+
+function roundRect(c, x, y, w, h, r) {
+  c.beginPath();
+  c.moveTo(x+r,y); c.lineTo(x+w-r,y);
+  c.quadraticCurveTo(x+w,y,x+w,y+r);
+  c.lineTo(x+w,y+h-r);
+  c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  c.lineTo(x+r,y+h);
+  c.quadraticCurveTo(x,y+h,x,y+h-r);
+  c.lineTo(x,y+r);
+  c.quadraticCurveTo(x,y,x+r,y);
+  c.closePath();
+}
+
+// Wave with transparency — each layer blends over the one before
+function drawWave(yBase, amplitude, period, speed, fillR, fillG, fillB, alpha) {
+  const W = canvas.width, H = canvas.height;
+  ctx.beginPath();
+  ctx.moveTo(0, yBase);
+  for (let x = 0; x <= W; x += 3) {
+    const y = yBase
+      + Math.sin((x / period) + t * speed) * amplitude
+      + Math.sin((x / (period * 0.6)) + t * speed * 1.3) * (amplitude * 0.4)
+      + Math.sin((x / (period * 0.3)) + t * speed * 0.7) * (amplitude * 0.15);
+    ctx.lineTo(x, y);
+  }
+  ctx.lineTo(W, H);
+  ctx.lineTo(0, H);
+  ctx.closePath();
+  ctx.fillStyle = `rgba(${fillR},${fillG},${fillB},${alpha})`;
+  ctx.fill();
+}
+
+// Soft wispy clouds — pure white with a very faint warm edge
+function drawCloud(cx, cy, sc, alpha) {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  const puffs = [[0,0,36],[32,8,26],[-32,8,26],[15,-16,20],[-15,-16,20],[50,14,18],[-50,14,18]];
+  puffs.forEach(function(p) {
+    var ox = p[0], oy = p[1], r = p[2];
+    var g = ctx.createRadialGradient(cx+ox*sc, cy+oy*sc-r*sc*0.15, r*sc*0.05, cx+ox*sc, cy+oy*sc, r*sc);
+    g.addColorStop(0,   'rgba(238,252,220,0.98)');
+    g.addColorStop(0.4, 'rgba(220,242,200,0.88)');
+    g.addColorStop(0.8, 'rgba(195,228,175,0.52)');
+    g.addColorStop(1,   'rgba(165,210,150,0)');
+    ctx.beginPath();
+    ctx.arc(cx+ox*sc, cy+oy*sc, r*sc, 0, Math.PI*2);
+    ctx.fillStyle = g;
+    ctx.fill();
+  });
+  ctx.restore();
+}
+
+function drawLighthouse(cx, cy) {
+  ctx.save();
+  ctx.translate(cx, cy);
+
+  // Rocky base
+  ctx.beginPath();
+  ctx.moveTo(-36, 0);
+  ctx.bezierCurveTo(-40, -8, -28, -17, -14, -19);
+  ctx.bezierCurveTo(-6, -21, 2, -26, 10, -24);
+  ctx.bezierCurveTo(22, -22, 35, -14, 38, -4);
+  ctx.bezierCurveTo(42, 4, 36, 10, 28, 10);
+  ctx.bezierCurveTo(10, 12, -18, 8, -36, 0);
+  ctx.closePath();
+  var rg = ctx.createLinearGradient(0, -26, 0, 12);
+  rg.addColorStop(0, '#4a5a42');
+  rg.addColorStop(0.6, '#2a3828');
+  rg.addColorStop(1, '#141f12');
+  ctx.fillStyle = rg;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(-28, -3);
+  ctx.bezierCurveTo(-18, -14, 2, -20, 18, -16);
+  ctx.bezierCurveTo(28, -12, 34, -5, 28, -1);
+  ctx.bezierCurveTo(14, 3, -10, 5, -28, -3);
+  ctx.fillStyle = 'rgba(90,115,80,0.38)';
+  ctx.fill();
+
+  // Tower — warm off-white
+  ctx.beginPath();
+  ctx.moveTo(-8, -18); ctx.lineTo(-6, -68); ctx.lineTo(6, -68); ctx.lineTo(8, -18);
+  ctx.closePath();
+  var tg = ctx.createLinearGradient(-8, 0, 8, 0);
+  tg.addColorStop(0, '#d4dcc8');
+  tg.addColorStop(0.5, '#eef3e6');
+  tg.addColorStop(1, '#b8c4a8');
+  ctx.fillStyle = tg;
+  ctx.fill();
+  // Green stripes
+  [[-58,-9],[-44,-9],[-30,-9]].forEach(function(s) {
+    ctx.fillStyle = '#1a5c28';
+    ctx.beginPath();
+    ctx.rect(-7, s[0], 14, 9);
+    ctx.fill();
+  });
+
+  // Lantern housing
+  ctx.fillStyle = '#0e1e12';
+  ctx.beginPath(); ctx.rect(-9, -80, 18, 12); ctx.fill();
+
+  // Rotating beam — warm yellow-white glow
+  var lightPulse = Math.sin(t * 1.5);
+  if (lightPulse > 0.2) {
+    var op = (lightPulse - 0.2) / 0.8;
+    var lg = ctx.createRadialGradient(0, -74, 0, 0, -74, 90);
+    lg.addColorStop(0,   'rgba(255,252,200,' + (op * 0.90) + ')');
+    lg.addColorStop(0.25,'rgba(255,235,140,' + (op * 0.45) + ')');
+    lg.addColorStop(1,   'rgba(200,220,100,0)');
+    ctx.fillStyle = lg;
+    ctx.beginPath(); ctx.arc(0, -74, 90, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,230,' + (op * 0.98) + ')';
+    ctx.beginPath(); ctx.arc(0, -74, 4, 0, Math.PI*2); ctx.fill();
+  }
+
+  // Cap
+  ctx.fillStyle = '#0a140c';
+  ctx.beginPath();
+  ctx.moveTo(-10, -80); ctx.lineTo(10, -80);
+  ctx.lineTo(6, -88); ctx.lineTo(-6, -88);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = 'rgba(200,230,150,0.4)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.rect(-11, -82, 22, 3); ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawSailboat(cx, cy, sc) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.scale(sc, sc);
+  ctx.beginPath();
+  ctx.moveTo(-20, 0);
+  ctx.bezierCurveTo(-20, 5, -12, 8, 0, 8);
+  ctx.bezierCurveTo(12, 8, 20, 5, 22, 0);
+  ctx.closePath();
+  ctx.fillStyle = '#1a3e22';
+  ctx.fill();
+  ctx.strokeStyle = '#0c1e10';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(2, 0); ctx.lineTo(2, -48); ctx.stroke();
+  // sail — warm white
+  ctx.beginPath();
+  ctx.moveTo(2, -46); ctx.lineTo(2, 2); ctx.lineTo(26, -10);
+  ctx.closePath();
+  var sg = ctx.createLinearGradient(2, -46, 26, -10);
+  sg.addColorStop(0, 'rgba(255,255,240,0.92)');
+  sg.addColorStop(1, 'rgba(220,240,195,0.72)');
+  ctx.fillStyle = sg;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(2, -34); ctx.lineTo(-18, 0); ctx.lineTo(2, 0);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(248,255,230,0.80)';
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawFish(cx, cy, phase) {
+  var arc = Math.sin(phase * Math.PI);
+  var angle = (phase - 0.5) * 1.2;
+  ctx.save();
+  ctx.translate(cx, cy - arc * 52);
+  ctx.rotate(angle);
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 11, 4, 0, 0, Math.PI*2);
+  ctx.fillStyle = '#1a6838';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 7, 2.5, 0, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(140,220,200,0.55)';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(11, 0); ctx.lineTo(19, -5); ctx.lineTo(19, 5);
+  ctx.closePath();
+  ctx.fillStyle = '#124e28';
+  ctx.fill();
+  ctx.fillStyle = 'rgba(0,0,0,0.85)';
+  ctx.beginPath(); ctx.arc(-6, -1, 1.3, 0, Math.PI*2); ctx.fill();
+  if (phase < 0.18 || phase > 0.82) {
+    var sp = phase < 0.18 ? phase/0.18 : (1-phase)/0.18;
+    for (var i = 0; i < 5; i++) {
+      var ang = (i/5)*Math.PI*2;
+      var dr = sp * 16;
+      ctx.beginPath();
+      ctx.arc(Math.cos(ang)*dr, Math.sin(ang)*dr*0.45+8, 2.2, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(200,245,255,' + (0.7*(1-sp)) + ')';
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
+function drawGull(x, y, size) {
+  var flap = Math.sin(t * 4.8) * 8 * size;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.strokeStyle = 'rgba(30,50,25,0.50)';
+  ctx.lineWidth = 1.8 * size;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.quadraticCurveTo(-13*size, -flap, -26*size, 0);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.quadraticCurveTo(13*size, -flap, 26*size, 0);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawShip(cx, cy) {
+  var bob = Math.sin(t * 0.8) * 6;
+  var lean = Math.sin(t * 0.8) * 0.018;
+  cy += bob;
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(lean);
+
+  // Wake ripples — pale blue-white
+  for (var i = 0; i < 4; i++) {
+    var ph = (t * 0.5 + i * 1.4) % 4.2;
+    var sc = 0.2 + ph / 4.2 * 1.6;
+    var op = 0.45 * (1 - ph / 4.2);
+    ctx.save();
+    ctx.translate(-120, 55);
+    ctx.scale(sc, sc * 0.3);
+    ctx.beginPath();
+    ctx.arc(0, 0, 80, 0, Math.PI*2);
+    ctx.strokeStyle = 'rgba(210,240,240,' + op + ')';
+    ctx.lineWidth = 3 / sc;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Hull — deep warm green
+  ctx.beginPath();
+  ctx.moveTo(-170, 20);
+  ctx.bezierCurveTo(-170, 2, -145, -10, -95, -12);
+  ctx.lineTo(148, -16);
+  ctx.bezierCurveTo(185, -17, 210, -8, 225, 8);
+  ctx.lineTo(238, 24);
+  ctx.bezierCurveTo(243, 30, 243, 38, 235, 44);
+  ctx.lineTo(215, 56);
+  ctx.bezierCurveTo(198, 66, 175, 72, 145, 72);
+  ctx.lineTo(-95, 71);
+  ctx.bezierCurveTo(-145, 69, -170, 58, -170, 44);
+  ctx.closePath();
+  var hg = ctx.createLinearGradient(0, -16, 0, 72);
+  hg.addColorStop(0,   '#1e4a28');
+  hg.addColorStop(0.5, '#0e2c18');
+  hg.addColorStop(1,   '#07150c');
+  ctx.fillStyle = hg;
+  ctx.fill();
+  // Warm yellow-orange afternoon reflection on hull side
+  var hl = ctx.createLinearGradient(140, -16, 240, 40);
+  hl.addColorStop(0, 'rgba(255,195,80,0.28)');
+  hl.addColorStop(0.5, 'rgba(240,160,50,0.15)');
+  hl.addColorStop(1, 'rgba(200,120,20,0)');
+  ctx.fillStyle = hl;
+  ctx.fill();
+  ctx.strokeStyle = '#060f08';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Hull top warm sheen
+  ctx.beginPath();
+  ctx.moveTo(-162, 14);
+  ctx.bezierCurveTo(-120, 4, -40, 0, 80, -2);
+  ctx.lineTo(150, -6);
+  ctx.bezierCurveTo(-40, -4, -120, 6, -162, 18);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(255,230,150,0.08)';
+  ctx.fill();
+
+  // Waterline stripe
+  ctx.beginPath();
+  ctx.moveTo(-166, 38); ctx.lineTo(228, 26); ctx.lineTo(234, 42); ctx.lineTo(-166, 54);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(22,68,35,0.80)';
+  ctx.fill();
+
+  // Portholes — warm yellow-white glow (afternoon light)
+  [-130,-100,-70,-40,-10,20,50,80].forEach(function(px) {
+    var pg = ctx.createRadialGradient(px, 27, 0, px, 27, 5);
+    pg.addColorStop(0, 'rgba(255,245,190,0.95)');
+    pg.addColorStop(1, 'rgba(180,140,40,0)');
+    ctx.beginPath(); ctx.arc(px, 27, 4, 0, Math.PI*2);
+    ctx.fillStyle = pg; ctx.fill();
+  });
+
+  // Deck rail
+  var rg2 = ctx.createLinearGradient(-158, 0, 138, 0);
+  rg2.addColorStop(0, '#ccd8c0'); rg2.addColorStop(1, '#eef3de');
+  ctx.fillStyle = rg2;
+  ctx.strokeStyle = '#060f08'; ctx.lineWidth = 0.8;
+  roundRect(ctx, -158, -22, 296, 8, 2); ctx.fill(); ctx.stroke();
+
+  // Cargo hatches
+  [[-138,-36,38,13,'#1a6030'],[-92,-36,38,13,'#22784a'],[-46,-36,38,13,'#104a22']].forEach(function(d) {
+    ctx.fillStyle = d[4]; ctx.strokeStyle = '#060f08'; ctx.lineWidth = 0.8;
+    roundRect(ctx, d[0], d[1], d[2], d[3], 2); ctx.fill(); ctx.stroke();
+  });
+
+  // Crane
+  ctx.strokeStyle = '#08140a'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(-126,-36); ctx.lineTo(-126,-62); ctx.stroke();
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(-126,-62); ctx.lineTo(-88,-62); ctx.stroke();
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(-126,-50); ctx.lineTo(-96,-50); ctx.stroke();
+
+  // Bridge — warm off-white with afternoon yellow tint
+  var bg2 = ctx.createLinearGradient(68, -80, 150, -14);
+  bg2.addColorStop(0, '#f8f8ec'); bg2.addColorStop(0.6, '#eeeedd'); bg2.addColorStop(1, '#d8d8c0');
+  ctx.fillStyle = bg2; ctx.strokeStyle = '#06100a'; ctx.lineWidth = 1.2;
+  roundRect(ctx, 68, -80, 78, 66, 4); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#0e3e1a';
+  roundRect(ctx, 68, -80, 78, 7, 2); ctx.fill();
+  // Windows — afternoon yellow-green glow
+  [[76,-68,62,11,0.65],[76,-52,62,9,0.50],[76,-38,62,9,0.38]].forEach(function(w) {
+    var wg = ctx.createLinearGradient(w[0], w[1], w[0]+w[2], w[1]+w[3]);
+    wg.addColorStop(0, 'rgba(255,240,170,' + w[4] + ')');
+    wg.addColorStop(1, 'rgba(14,35,18,' + w[4] + ')');
+    ctx.fillStyle = wg;
+    roundRect(ctx, w[0], w[1], w[2], w[3], 1.5); ctx.fill();
+  });
+
+  // Funnel
+  ctx.fillStyle = '#0a3e1a'; ctx.strokeStyle = '#06100a'; ctx.lineWidth = 1;
+  roundRect(ctx, 120, -106, 24, 30, 3); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#155828'; roundRect(ctx, 120, -106, 24, 8, 2); ctx.fill();
+
+  // Smoke — soft warm grey-white
+  for (var i = 0; i < 5; i++) {
+    var sph = (t * 0.35 + i * 0.88) % 4.4;
+    var ssc = 0.3 + sph / 4.4 * 2.2;
+    var sop = 0.42 * (1 - sph / 4.4);
+    var sox = sph * 5, soy = -sph * 18;
+    ctx.beginPath();
+    ctx.arc(132+sox, -108+soy, 9*ssc, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(225,230,215,' + sop + ')';
+    ctx.fill();
+  }
+
+  // Mast
+  ctx.strokeStyle = '#08140a'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(82,-80); ctx.lineTo(82,-118); ctx.stroke();
+  ctx.lineWidth = 1.8;
+  ctx.beginPath(); ctx.moveTo(82,-118); ctx.lineTo(98,-118); ctx.stroke();
+  ctx.fillStyle = '#d4900a';
+  ctx.beginPath(); ctx.arc(82, -120, 4.5, 0, Math.PI*2); ctx.fill();
+
+  // Bow pennant — warm amber
+  ctx.fillStyle = '#c08010'; ctx.strokeStyle = '#06100a'; ctx.lineWidth = 0.6;
+  ctx.beginPath();
+  ctx.moveTo(-170, 22); ctx.quadraticCurveTo(-178, 18, -185, 24);
+  ctx.quadraticCurveTo(-178, 30, -170, 26);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+
+  // Bow spray — pale blue-white
+  for (var i = 0; i < 4; i++) {
+    var bph = (t * 0.55 + i * 0.8) % 2.4;
+    var bop = bph < 0.3 ? bph/0.3*0.55 : 0.55*(1-(bph-0.3)/2.1);
+    ctx.beginPath();
+    ctx.arc(-165 - bph*4, 36 - bph*3.5, 4.5, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(200,238,245,' + bop + ')';
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+// ── MAIN LOOP ──
+function draw() {
+  var W = canvas.width, H = canvas.height;
+  t += 0.016;
+  var horizonY = H * 0.47;
+
+  // ── SKY ──
+  // Mostly white centre, dewy warm yellow bleeding in at corners (afternoon-to-evening)
+  var sky = ctx.createLinearGradient(0, 0, 0, horizonY + 30);
+  sky.addColorStop(0,    '#f0f5e8');   // very pale off-white top
+  sky.addColorStop(0.35, '#f8faf0');   // almost pure white mid
+  sky.addColorStop(0.70, '#fffce8');   // barely-there warm white
+  sky.addColorStop(1,    '#fffad0');   // soft warm cream at horizon
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, W, H);
+
+  // Dewy yellow warmth at left corner
+  var cornerL = ctx.createRadialGradient(0, 0, 0, 0, 0, W * 0.55);
+  cornerL.addColorStop(0,   'rgba(255,235,120,0.28)');
+  cornerL.addColorStop(0.45,'rgba(255,245,170,0.12)');
+  cornerL.addColorStop(1,   'rgba(255,250,200,0)');
+  ctx.fillStyle = cornerL;
+  ctx.fillRect(0, 0, W, horizonY + 30);
+
+  // Dewy yellow warmth at right corner
+  var cornerR = ctx.createRadialGradient(W, 0, 0, W, 0, W * 0.55);
+  cornerR.addColorStop(0,   'rgba(255,220,100,0.30)');
+  cornerR.addColorStop(0.45,'rgba(255,240,155,0.13)');
+  cornerR.addColorStop(1,   'rgba(255,248,190,0)');
+  ctx.fillStyle = cornerR;
+  ctx.fillRect(0, 0, W, horizonY + 30);
+
+  // Stars (very faint — barely visible in bright sky)
+  for (var i = 0; i < 12; i++) {
+    var sx = W * 0.52 + (i * 139 % (W * 0.48));
+    var sy = H * 0.01 + (i * 97 % (H * 0.12));
+    var sop = 0.04 + 0.08 * Math.abs(Math.sin(t * 0.4 + i));
+    ctx.fillStyle = 'rgba(180,180,150,' + sop + ')';
+    ctx.beginPath(); ctx.arc(sx, sy, 0.7, 0, Math.PI*2); ctx.fill();
+  }
+
+  // Horizon warm band — very subtle warm yellow
+  var hglow = ctx.createLinearGradient(0, horizonY - 40, 0, horizonY + 30);
+  hglow.addColorStop(0,   'rgba(255,250,200,0)');
+  hglow.addColorStop(0.5, 'rgba(255,240,160,0.30)');
+  hglow.addColorStop(1,   'rgba(255,225,120,0)');
+  ctx.fillStyle = hglow;
+  ctx.fillRect(0, horizonY - 40, W, 70);
+
+  // ── SUN — warm yellow-white, soft ──
+  var sunX = W * 0.78, sunY = horizonY - H * 0.052;
+  // Wide atmospheric haze
+  var s1 = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 280);
+  s1.addColorStop(0,   'rgba(255,252,200,0.38)');
+  s1.addColorStop(0.4, 'rgba(255,240,160,0.16)');
+  s1.addColorStop(1,   'rgba(255,230,130,0)');
+  ctx.fillStyle = s1; ctx.beginPath(); ctx.arc(sunX, sunY, 280, 0, Math.PI*2); ctx.fill();
+  // Mid glow
+  var s2 = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 80);
+  s2.addColorStop(0,   'rgba(255,255,230,0.88)');
+  s2.addColorStop(0.5, 'rgba(255,248,195,0.60)');
+  s2.addColorStop(1,   'rgba(255,235,150,0)');
+  ctx.fillStyle = s2; ctx.beginPath(); ctx.arc(sunX, sunY, 80, 0, Math.PI*2); ctx.fill();
+  // Core — yellow-white disc
+  var s3 = ctx.createRadialGradient(sunX, sunY-2, 0, sunX, sunY, 24);
+  s3.addColorStop(0,   '#fffff8');
+  s3.addColorStop(0.45,'#fffbd0');
+  s3.addColorStop(1,   '#f5e878');
+  ctx.fillStyle = s3; ctx.beginPath(); ctx.arc(sunX, sunY, 24, 0, Math.PI*2); ctx.fill();
+
+  // ── CLOUDS ──
+  clouds.forEach(function(c) {
+    c.xFrac -= c.spd;
+    if (c.xFrac < 0.48) c.xFrac = 1.08;
+    drawCloud(c.xFrac * W, c.yFrac * H, c.sc, c.a);
+  });
+
+  // ── OCEAN BASE — lightest blueish-green, very pale ──
+  // We use a clear layered approach so each wave layer is transparent
+  var og = ctx.createLinearGradient(0, horizonY, 0, H);
+  og.addColorStop(0,    'rgba(175,222,195,1.0)');  // pale greenish at horizon, 60g/40b
+  og.addColorStop(0.2,  'rgba(155,210,178,1.0)');
+  og.addColorStop(0.5,  'rgba(135,200,165,1.0)');
+  og.addColorStop(0.8,  'rgba(112,188,150,1.0)');
+  og.addColorStop(1,    'rgba(90,172,135,1.0)');
+  ctx.fillStyle = og;
+  ctx.fillRect(0, horizonY, W, H - horizonY);
+
+  // ── SUN REFLECTION PATH — warm yellow-orange on the green sea ──
+  var rp = ctx.createLinearGradient(sunX, horizonY, sunX, H);
+  rp.addColorStop(0,   'rgba(255,235,130,0.75)');
+  rp.addColorStop(0.3, 'rgba(255,210,90,0.45)');
+  rp.addColorStop(0.65,'rgba(240,180,60,0.20)');
+  rp.addColorStop(1,   'rgba(210,150,40,0.06)');
+  ctx.fillStyle = rp;
+  ctx.beginPath();
+  ctx.moveTo(sunX - 7, horizonY);
+  ctx.bezierCurveTo(sunX-35, horizonY+H*0.15, sunX-110, horizonY+H*0.35, sunX-165, H);
+  ctx.lineTo(sunX+165, H);
+  ctx.bezierCurveTo(sunX+110, horizonY+H*0.35, sunX+35, horizonY+H*0.15, sunX+7, horizonY);
+  ctx.closePath();
+  ctx.fill();
+
+  // Shimmer lines on reflection — warm gold
+  for (var i = 0; i < 20; i++) {
+    var ry = horizonY + (i/20)*(H-horizonY)*0.94;
+    var spread = 7 + (i/20)*160;
+    var rph = (t*1.3 + i*0.36) % (Math.PI*2);
+    var rop = 0.22 + 0.50 * Math.abs(Math.sin(rph));
+    ctx.beginPath();
+    ctx.moveTo(sunX - spread + Math.sin(t*0.9+i*0.7)*8, ry);
+    ctx.lineTo(sunX + spread - Math.sin(t*0.9+i*0.7)*8, ry);
+    ctx.strokeStyle = 'rgba(255,230,120,' + (rop*0.60) + ')';
+    ctx.lineWidth = 1.4 + Math.sin(rph)*0.7;
+    ctx.stroke();
+  }
+
+  // ── WAVES — transparent layers, lightest blueish-green ──
+  // Each wave is a semi-transparent layer so you can see through them
+  // Behind ship — very transparent
+  drawWave(horizonY + H*0.030, H*0.020, W*0.38, 0.44, 148, 205, 175, 0.48);
+  drawWave(horizonY + H*0.058, H*0.026, W*0.30, 0.60, 135, 195, 162, 0.44);
+
+  // ── LIGHTHOUSE ──
+  drawLighthouse(W * 0.88, horizonY + 5);
+
+  // ── SAILBOAT ──
+  sboat.xFrac -= sboat.spd;
+  if (sboat.xFrac < 0.56) sboat.xFrac = 0.98;
+  var sbBob = Math.sin(t * 0.65) * 1.5;
+  drawSailboat(sboat.xFrac * W, horizonY + 2 + sbBob, 0.36);
+
+  // ── SHIP ──
+  drawShip(W * 0.65, horizonY + H * 0.065);
+
+  // Waves in front of ship — progressively slightly more opaque but still very transparent
+  drawWave(horizonY + H*0.11, H*0.018, W*0.24, 0.78, 158, 210, 180, 0.50);
+  drawWave(horizonY + H*0.19, H*0.015, W*0.20, 0.94, 168, 215, 185, 0.45);
+  drawWave(horizonY + H*0.27, H*0.012, W*0.16, 1.12, 178, 220, 192, 0.40);
+
+  // ── BIOLUMINESCENT FOAM — light blue and white ──
+  bioFoam.forEach(function(s) {
+    s.xFrac += s.drift;
+    if (s.xFrac > 1.0) s.xFrac = 0.52;
+    if (s.xFrac < 0.52) s.xFrac = 1.0;
+    var fx = s.xFrac * W;
+    var fy = s.yFrac * H + Math.sin(t * s.spd + s.phase) * 5;
+    var gp = 0.4 + 0.6*(0.5 + 0.5*Math.sin(t*1.8 + s.phase));
+    // Light blue outer glow
+    var bg3 = ctx.createRadialGradient(fx, fy, 0, fx, fy, s.r * 7);
+    bg3.addColorStop(0,   'rgba(160,220,255,' + (gp*0.50) + ')');
+    bg3.addColorStop(0.4, 'rgba(120,195,240,' + (gp*0.25) + ')');
+    bg3.addColorStop(1,   'rgba(80,170,220,0)');
+    ctx.fillStyle = bg3;
+    ctx.beginPath(); ctx.arc(fx, fy, s.r*7, 0, Math.PI*2); ctx.fill();
+    // White bright core
+    ctx.fillStyle = 'rgba(240,252,255,' + (gp*0.95) + ')';
+    ctx.beginPath(); ctx.arc(fx, fy, s.r, 0, Math.PI*2); ctx.fill();
+  });
+
+  // ── JUMPING FISH ──
+  var loopT = t % 24;
+  fishJumps.forEach(function(f) {
+    if (!f.active && loopT > f.triggerTime && loopT < f.triggerTime + 1.6) {
+      f.active = true; f.arc = 0;
+    }
+    if (f.active) {
+      f.arc += 0.018;
+      if (f.arc >= 1) { f.active = false; f.arc = 0; }
+      drawFish(f.xFrac * W, horizonY + H * 0.13, f.arc);
+    }
+  });
+
+  // ── SPARKLES — light blue and white ──
+  sparks.forEach(function(s) {
+    var sx = s.xFrac * W;
+    var prog = (s.xFrac - 0.54) / 0.44;
+    var sy2 = horizonY + prog * (H - horizonY) * 0.82 + s.yOff;
+    if (sy2 < horizonY) return;
+    var op = 0.10 + 0.85*(0.5 + 0.5*Math.sin(t*2.1 + s.phase));
+    // Mix: on the reflection path use warm sparkle, elsewhere light blue-white
+    var inReflect = Math.abs(sx - sunX) < (prog * 170 + 10);
+    if (inReflect) {
+      ctx.fillStyle = 'rgba(255,240,160,' + op + ')';
+    } else {
+      ctx.fillStyle = 'rgba(190,235,255,' + op + ')';
+    }
+    ctx.beginPath(); ctx.arc(sx, sy2, s.r, 0, Math.PI*2); ctx.fill();
+    if (op > 0.60) {
+      ctx.strokeStyle = inReflect
+        ? 'rgba(255,252,210,' + (op*0.50) + ')'
+        : 'rgba(220,245,255,' + (op*0.50) + ')';
+      ctx.lineWidth = 0.7;
+      ctx.beginPath();
+      ctx.moveTo(sx-s.r*2.8, sy2); ctx.lineTo(sx+s.r*2.8, sy2);
+      ctx.moveTo(sx, sy2-s.r*2.8); ctx.lineTo(sx, sy2+s.r*2.8);
+      ctx.stroke();
+    }
+  });
+
+  // ── GULLS ──
+  gulls.forEach(function(g) {
+    g.xFrac -= g.spd;
+    if (g.xFrac * W < -60) g.xFrac = 1.05;
+    drawGull(g.xFrac * W, g.yFrac * H, g.sz);
+  });
+
+  // ── FOREGROUND VIGNETTE — very soft, barely-there ──
+  var vig = ctx.createLinearGradient(0, H*0.78, 0, H);
+  vig.addColorStop(0, 'rgba(0,0,0,0)');
+  vig.addColorStop(1, 'rgba(8,25,15,0.18)');
+  ctx.fillStyle = vig;
+  ctx.fillRect(0, H*0.78, W, H*0.22);
+
+  requestAnimationFrame(draw);
+}
+
+draw();
+</script>
+</body>
+</html>
